@@ -1,0 +1,50 @@
+import styled from 'styled-components';
+import UserInfoPanel from './UserInfoPanel';
+import CustomizationPanel from './CustomizationPanel'; // Assuming this will be created
+
+// Base Modal Styles
+const ModalOverlay = styled.div`
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
+`;
+
+const ModalContainer = styled.div`
+  width: 95%; max-width: 1200px; height: 85%;
+  background-color: #f3e9d3;
+  border: 10px solid #4a2e2a; border-radius: 15px;
+  box-shadow: inset 0 0 0 5px #8d6e63;
+  padding: 25px; box-sizing: border-box; position: relative;
+  font-family: monospace; color: #5d4037;
+`;
+
+const CloseButton = styled.button`
+  position: absolute; top: 15px; right: 15px;
+  background-color: #ffab40; color: #5d4037;
+  border: 3px solid #c62828; border-radius: 50%;
+  width: 40px; height: 40px; font-size: 24px; font-weight: bold;
+  cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 10;
+  &:hover { background-color: #ffb74d; }
+`;
+
+const Content = styled.div`
+  display: flex;
+  gap: 20px;
+  height: 100%;
+`;
+
+const MyPageModal = ({ onClose }) => {
+  return (
+    <ModalOverlay onClick={onClose}>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
+        <CloseButton onClick={onClose}>&times;</CloseButton>
+        <Content>
+          <UserInfoPanel />
+          <CustomizationPanel />
+        </Content>
+      </ModalContainer>
+    </ModalOverlay>
+  );
+};
+
+export default MyPageModal; 
