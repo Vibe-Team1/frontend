@@ -74,7 +74,7 @@ const PurchaseButton = styled.button`
   }
 `;
 
-const Receipt = ({ cart, onPurchase }) => {
+const Receipt = ({ cart, onPurchase, mode = 'buy' }) => {
   const cartItems = Object.values(cart);
 
   const subtotal = cartItems.reduce((acc, current) => {
@@ -84,9 +84,11 @@ const Receipt = ({ cart, onPurchase }) => {
   const fee = subtotal * 0.01; // 1% 수수료 (임시)
   const total = subtotal + fee;
 
+  const isBuyMode = mode === 'buy';
+
   return (
     <ReceiptContainer>
-      <Title>구매 영수증</Title>
+      <Title>{isBuyMode ? '구매 영수증' : '판매 영수증'}</Title>
       <ItemList>
         <HeaderRow>
           <span>물품명</span>
@@ -114,13 +116,13 @@ const Receipt = ({ cart, onPurchase }) => {
           </span>
         </TotalRow>
         <TotalRow>
-          <span>총 구매 금액</span>
+          <span>{isBuyMode ? '총 구매 금액' : '총 판매 금액'}</span>
           <span>
             {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </span>
         </TotalRow>
       </TotalsSection>
-      <PurchaseButton onClick={onPurchase}>구매</PurchaseButton>
+      <PurchaseButton onClick={onPurchase}>{isBuyMode ? '구매' : '판매'}</PurchaseButton>
     </ReceiptContainer>
   );
 };

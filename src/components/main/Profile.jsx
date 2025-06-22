@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 // TODO: 이 경로에 실제 프로필 사진 파일을 넣어주세요. 예: /src/assets/profile-pic.png
-const profilePicUrl = '/src/assets/profile-pic.png';
+const profilePicUrl = '/src/assets/stockIcon/005930.png';
 
 const ProfileContainer = styled.div`
   display: flex;

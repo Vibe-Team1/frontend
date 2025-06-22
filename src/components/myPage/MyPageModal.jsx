@@ -1,12 +1,33 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import UserInfoPanel from './UserInfoPanel';
 import CustomizationPanel from './CustomizationPanel'; // Assuming this will be created
+
+const scaleUp = keyframes`
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 // Base Modal Styles
 const ModalOverlay = styled.div`
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   display: flex; justify-content: center; align-items: center; z-index: 1000;
+  animation: ${fadeIn} 0.25s ease-out forwards;
 `;
 
 const ModalContainer = styled.div`
@@ -16,6 +37,7 @@ const ModalContainer = styled.div`
   box-shadow: inset 0 0 0 5px #8d6e63;
   padding: 25px; box-sizing: border-box; position: relative;
   font-family: monospace; color: #5d4037;
+  animation: ${scaleUp} 0.25s ease-out forwards;
 `;
 
 const CloseButton = styled.button`

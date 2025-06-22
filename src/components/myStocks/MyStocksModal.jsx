@@ -1,5 +1,16 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import OwnedStockCard from './OwnedStockCard';
+
+const scaleUp = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
 
 const ModalOverlay = styled.div`
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -14,6 +25,16 @@ const ModalContainer = styled.div`
   box-shadow: inset 0 0 0 5px #8d6e63;
   padding: 25px; box-sizing: border-box; position: relative;
   font-family: monospace; color: #5d4037;
+  animation: ${scaleUp} 0.25s ease-out forwards;
+`;
+
+const Title = styled.h2`
+  text-align: center;
+  font-family: monospace;
+  font-size: 2.5rem;
+  color: #5d4037;
+  margin-top: 0;
+  margin-bottom: 20px;
 `;
 
 const CloseButton = styled.button`
@@ -28,32 +49,31 @@ const CloseButton = styled.button`
 const Content = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 60px);
+  height: calc(100% - 80px);
   gap: 25px;
-  margin-top: 60px;
 `;
 
 const NavigateButton = styled.button`
-    padding: 15px 25px;
-    border: 3px solid #795548;
-    background: white;
-    border-radius: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    color: #5D4037;
-    box-shadow: 3px 3px 5px rgba(0,0,0,0.2);
-    height: fit-content;
+  padding: 15px 25px;
+  border: 4px solid #a1887f;
+  background: #f3e9d3;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: #5d4037;
+  height: fit-content;
+  align-self: flex-start;
 
-    &:hover {
-        background: #fdfaf4;
-    }
+  &:hover {
+    background: #e0d0b8;
+  }
 `;
 
 const StockList = styled.div`
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
   gap: 25px;
   overflow-y: auto;
   align-content: flex-start;
@@ -72,18 +92,19 @@ const dummyOwnedStocks = [
     { id: 8, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
 ];
 
-const MyStocksModal = ({ onClose }) => {
+const MyStocksModal = ({ onClose, onNavigate }) => {
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>&times;</CloseButton>
+        <Title>내 주식</Title>
         <Content>
-            <StockList>
-                {dummyOwnedStocks.map(item => (
-                    <OwnedStockCard key={item.id} item={item} />
-                ))}
-            </StockList>
-            <NavigateButton>구매/판매 창으로</NavigateButton>
+          <StockList>
+            {dummyOwnedStocks.map((item) => (
+              <OwnedStockCard key={item.id} item={item} />
+            ))}
+          </StockList>
+          <NavigateButton onClick={onNavigate}>구매/판매 창으로</NavigateButton>
         </Content>
       </ModalContainer>
     </ModalOverlay>

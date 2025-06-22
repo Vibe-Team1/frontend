@@ -16,6 +16,9 @@ const PanelContainer = styled.div`
 const ProfileImage = styled.div`
   width: 150px;
   height: 150px;
+  background-image: url('/src/assets/stockIcon/005930.png');
+  background-size: cover;
+  background-position: center;
   background-color: #eee; /* Placeholder */
   border: 3px solid #d8c8b0;
   border-radius: 10px;

@@ -1,8 +1,19 @@
 import { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import StockItemCard from "./StockItemCard";
 import ReceiptComponent from "./Receipt";
-import MarketView from './MarketView';
+import MarketView from "./MarketView";
+
+const scaleUp = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -27,6 +38,7 @@ const ModalContainer = styled.div`
   padding: 25px;
   box-sizing: border-box;
   position: relative;
+  animation: ${scaleUp} 0.25s ease-out forwards;
 `;
 
 const CloseButton = styled.button`
@@ -99,13 +111,14 @@ const Tab = styled.button`
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  background-color: ${({ $active }) => ($active ? 'white' : 'transparent')};
+  background-color: ${({ $active }) => ($active ? "white" : "transparent")};
   border: none;
-  border-bottom: 5px solid ${({ $active }) => ($active ? '#8d6e63' : 'transparent')};
+  border-bottom: 5px solid
+    ${({ $active }) => ($active ? "#8d6e63" : "transparent")};
   color: #5d4037;
-  
+
   &:hover {
-    background-color: ${({ $active }) => ($active ? 'white' : '#f7f2e9')};
+    background-color: ${({ $active }) => ($active ? "white" : "#f7f2e9")};
   }
 `;
 
@@ -128,59 +141,59 @@ const Receipt = styled.aside`
 
 const dummyItems = [
   {
-      id: 1,
-      name: "삼성전자",
-      price: 59600,
-      available: 318,
-      change: 400,
-      avgBuyPrice: null,
-      imageUrl: "/src/assets/stockIcon/005930.png",
-    },
-    {
-      id: 2,
-      name: "삼성전자",
-      price: 59600,
-      available: 318,
-      change: 400,
-      avgBuyPrice: null,
-      imageUrl: "/src/assets/stockIcon/005930.png",
-    },
+    id: 1,
+    name: "삼성전자",
+    price: 59600,
+    available: 318,
+    change: 400,
+    avgBuyPrice: null,
+    imageUrl: "/src/assets/stockIcon/005930.png",
+  },
   {
-      id: 3,
-      name: "삼성전자",
-      price: 59600,
-      available: 318,
-      change: 400,
-      avgBuyPrice: null,
-      imageUrl: "/src/assets/stockIcon/005930.png",
-    },
-    {
-      id: 4,
-      name: "삼성전자",
-      price: 59600,
-      available: 318,
-      change: 400,
-      avgBuyPrice: null,
-      imageUrl: "/src/assets/stockIcon/005930.png",
-    },
+    id: 2,
+    name: "삼성전자",
+    price: 59600,
+    available: 318,
+    change: 400,
+    avgBuyPrice: null,
+    imageUrl: "/src/assets/stockIcon/005930.png",
+  },
   {
-      id: 5,
-      name: "삼성전자",
-      price: 59600,
-      available: 318,
-      change: 400,
-      avgBuyPrice: null,
-      imageUrl: "/src/assets/stockIcon/005930.png",
-    },
-    {
-      id: 6,
-      name: "삼성전자",
-      price: 59600,
-      available: 318,
-      change: 400,
-      avgBuyPrice: null,
-      imageUrl: "/src/assets/stockIcon/005930.png",
-    },
+    id: 3,
+    name: "삼성전자",
+    price: 59600,
+    available: 318,
+    change: 400,
+    avgBuyPrice: null,
+    imageUrl: "/src/assets/stockIcon/005930.png",
+  },
+  {
+    id: 4,
+    name: "삼성전자",
+    price: 59600,
+    available: 318,
+    change: 400,
+    avgBuyPrice: null,
+    imageUrl: "/src/assets/stockIcon/005930.png",
+  },
+  {
+    id: 5,
+    name: "삼성전자",
+    price: 59600,
+    available: 318,
+    change: 400,
+    avgBuyPrice: null,
+    imageUrl: "/src/assets/stockIcon/005930.png",
+  },
+  {
+    id: 6,
+    name: "삼성전자",
+    price: 59600,
+    available: 318,
+    change: 400,
+    avgBuyPrice: null,
+    imageUrl: "/src/assets/stockIcon/005930.png",
+  },
 ];
 
 const TradeModal = ({ onClose }) => {
@@ -257,8 +270,8 @@ const TradeModal = ({ onClose }) => {
               주가
             </Tab>
           </LeftNav>
-          
-          {activeTab === 'market' ? (
+
+          {activeTab === "market" ? (
             <MarketView items={dummyItems} />
           ) : (
             <>
@@ -271,7 +284,12 @@ const TradeModal = ({ onClose }) => {
                   />
                 ))}
               </ItemList>
-              <ReceiptComponent cart={cart} onPurchase={handlePurchase} />
+
+              <ReceiptComponent
+                cart={cart}
+                onPurchase={handlePurchase}
+                mode={activeTab}
+              />
             </>
           )}
         </ModalContent>

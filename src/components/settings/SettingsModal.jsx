@@ -1,5 +1,16 @@
 import { useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const scaleUp = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
 
 // Base Modal Styles (can be refactored into a shared component later)
 const ModalOverlay = styled.div`
@@ -26,6 +37,7 @@ const ModalContainer = styled.div`
   position: relative;
   font-family: monospace;
   color: #5d4037;
+  animation: ${scaleUp} 0.25s ease-out forwards;
 `;
 
 const CloseButton = styled.button`

@@ -10,6 +10,7 @@ import SettingsModal from '../settings/SettingsModal';
 import ConfirmModal from '../common/ConfirmModal';
 import MyPageModal from '../myPage/MyPageModal';
 import MyStocksModal from '../myStocks/MyStocksModal';
+import MyFriendsModal from '../friends/MyFriendsModal';
 
 const MainContainer = styled.div`
   width: 100vw;
@@ -59,6 +60,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isMyPageModalOpen, setIsMyPageModalOpen] = useState(false);
   const [isMyStocksModalOpen, setIsMyStocksModalOpen] = useState(false);
+  const [isMyFriendsModalOpen, setIsMyFriendsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleOpenTradeModal = () => setIsTradeModalOpen(true);
@@ -75,6 +77,14 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
 
   const handleOpenMyStocksModal = () => setIsMyStocksModalOpen(true);
   const handleCloseMyStocksModal = () => setIsMyStocksModalOpen(false);
+
+  const handleOpenMyFriendsModal = () => setIsMyFriendsModalOpen(true);
+  const handleCloseMyFriendsModal = () => setIsMyFriendsModalOpen(false);
+
+  const handleNavigateToTrade = () => {
+    setIsMyStocksModalOpen(false);
+    setIsTradeModalOpen(true);
+  };
 
   const handleConfirmExit = () => {
     navigate('/'); // Go back to landing page
@@ -96,7 +106,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
           {/* TODO: Add iconUrl prop, e.g., iconUrl="/src/assets/icons/trade.png" */}
           <NavItem label="매매" onClick={handleOpenTradeModal} />
           <NavItem label="내 주식" onClick={handleOpenMyStocksModal} />
-          <NavItem label="내 친구" />
+          <NavItem label="내 친구" onClick={handleOpenMyFriendsModal} />
         </NavContainer>
         <Chat />
         <NavContainer>
@@ -113,7 +123,8 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
           pauseMusic={pauseMusic}
         />}
       {isMyPageModalOpen && <MyPageModal onClose={handleCloseMyPageModal} />}
-      {isMyStocksModalOpen && <MyStocksModal onClose={handleCloseMyStocksModal} />}
+      {isMyStocksModalOpen && <MyStocksModal onClose={handleCloseMyStocksModal} onNavigate={handleNavigateToTrade} />}
+      {isMyFriendsModalOpen && <MyFriendsModal onClose={handleCloseMyFriendsModal} />}
       {isExitModalOpen && (
         <ConfirmModal 
           message="정말로 나가시겠습니까?"

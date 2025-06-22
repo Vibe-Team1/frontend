@@ -69,7 +69,7 @@ const SendButton = styled.button`
 const Chat = () => {
   return (
     <ChatContainer>
-      <ChatHeader>채팅</ChatHeader>
+      <ChatHeader>방명록</ChatHeader>
       <ChatMessages>
         {/* Messages will go here */}
       </ChatMessages>

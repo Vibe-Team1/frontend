@@ -1,30 +1,32 @@
 import styled from 'styled-components';
 
 const CardContainer = styled.div`
-  background: white;
-  border: 3px solid #795548;
+  background: #fdfaf4;
+  border: 3px solid #bcaaa4;
   border-radius: 10px;
   overflow: hidden;
-  font-family: 'Malgun Gothic', 'Dotum', sans-serif;
-  color: #5D4037;
-  box-shadow: 3px 3px 5px rgba(0,0,0,0.2);
+  color: #5d4037;
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
 `;
 
 const CardHeader = styled.div`
-  background-color: #D7CCC8;
-  padding: 8px;
+  background-color: #d7ccc8;
+  padding: 10px;
   text-align: center;
   font-weight: bold;
-  font-size: 1.3rem;
-  border-bottom: 3px solid #795548;
+  font-size: 1.4rem;
+  border-bottom: 3px solid #bcaaa4;
+  font-family: monospace;
 `;
 
 const CardBody = styled.div`
   padding: 20px;
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  gap: 15px;
+  display: flex;
+  gap: 20px;
   align-items: flex-start;
+  flex-grow: 1;
 `;
 
 const LeftSection = styled.div`
@@ -32,79 +34,98 @@ const LeftSection = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding-top: 15px;
+  gap: 15px;
+  flex-basis: 120px;
+  flex-shrink: 0;
   height: 100%;
 `;
 
 const ItemImage = styled.img`
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 5px;
 `;
 
 const PricePerItem = styled.span`
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: bold;
+  font-family: monospace;
 `;
 
 const RightSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 15px;
+  flex-grow: 1;
+  padding-top: 10px;
 `;
 
 const Quantity = styled.div`
-    font-size: 1.1rem;
-    font-weight: bold;
+  font-size: 1.2rem;
+  font-weight: bold;
+  align-self: flex-start;
+  padding-bottom: 10px;
+  font-family: monospace;
 `;
 
 const InfoRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  width: 100%;
+  font-family: monospace;
 `;
 
 const Label = styled.span`
-    font-weight: bold;
+  font-weight: 500;
+  color: #6d5b4f;
 `;
 
 const Value = styled.span`
-    font-weight: bold;
-    color: ${props => props.color || '#5D4037'};
+  font-weight: bold;
+  color: ${(props) => props.color || '#5D4037'};
+  text-align: right;
 `;
 
 const OwnedStockCard = ({ item }) => {
-    const { name, quantity, price, change, avgBuyPrice, profit, imageUrl } = item;
-    const changeColor = change >= 0 ? '#2196F3' : '#F44336';
-    const profitColor = profit >= 0 ? '#2196F3' : '#F44336';
+  const { name, quantity, price, change, avgBuyPrice, profit, imageUrl } = item;
+  const changeColor = change >= 0 ? '#0D47A1' : '#D32F2F';
+  const profitColor = profit >= 0 ? '#0D47A1' : '#D32F2F';
 
-    return (
-        <CardContainer>
-            <CardHeader>{name}</CardHeader>
-            <CardBody>
-                <LeftSection>
-                    <ItemImage src={imageUrl} alt={name} />
-                    <PricePerItem>1개당 {price.toLocaleString()}G</PricePerItem>
-                </LeftSection>
-                <RightSection>
-                    <Quantity>x{quantity}</Quantity>
-                    <InfoRow>
-                        <Label>전일 대비</Label>
-                        <Value color={changeColor}>{change >= 0 ? '+' : ''}{change.toLocaleString()}G</Value>
-                    </InfoRow>
-                    <InfoRow>
-                        <Label>나의 평균 구매가</Label>
-                        <Value>{avgBuyPrice.toLocaleString()}G</Value>
-                    </InfoRow>
-                    <InfoRow>
-                        <Label>구매 대비 이익</Label>
-                        <Value color={profitColor}>{profit >= 0 ? '+' : ''}{profit.toLocaleString()}G</Value>
-                    </InfoRow>
-                </RightSection>
-            </CardBody>
-        </CardContainer>
-    );
+  return (
+    <CardContainer>
+      <CardHeader>{name}</CardHeader>
+      <CardBody>
+        <LeftSection>
+          <Quantity>x{quantity}</Quantity>
+          <ItemImage src={imageUrl} alt={name} />
+          <PricePerItem>1개당 {price.toLocaleString()}G</PricePerItem>
+        </LeftSection>
+        <RightSection>
+          <InfoRow>
+            <Label>전일 대비</Label>
+            <Value color={changeColor}>
+              {change >= 0 ? '' : ''}
+              {change.toLocaleString()}G
+            </Value>
+          </InfoRow>
+          <InfoRow>
+            <Label>나의 평균 구매가</Label>
+            <Value>{avgBuyPrice.toLocaleString()}G</Value>
+          </InfoRow>
+          <InfoRow>
+            <Label>구매 대비 이익</Label>
+            <Value color={profitColor}>
+              {profit >= 0 ? '+' : ''}
+              {profit.toLocaleString()}G
+            </Value>
+          </InfoRow>
+        </RightSection>
+      </CardBody>
+    </CardContainer>
+  );
 };
 
 export default OwnedStockCard; 

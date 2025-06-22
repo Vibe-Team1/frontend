@@ -53,15 +53,15 @@ const Table = styled.div`
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  padding: 15px 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  padding: 25px 100px;
   font-weight: bold;
-  text-align: right;
-  color: #8d6e63;
+  text-align: center;
+  color: #6d5b4f;
   border-bottom: 2px solid #d8c8b0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   & > span:first-child {
-    text-align: left;
+    text-align: center;
   }
 `;
 
@@ -71,24 +71,37 @@ const TableBody = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   align-items: center;
-  padding: 15px 10px;
+  padding: 25px 100px;
   border-bottom: 1px solid #d8c8b0;
-  text-align: right;
-  font-size: 1.2rem;
-  color: #333;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6d5b4f;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e0d0b8;
+  }
 
   &:last-child {
     border-bottom: none;
   }
+
+  background-color: #f7f2e9;
 `;
 
 const ItemCell = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 15px;
-  text-align: left;
+
+  & > span {
+    font-weight: bold;
+    color: #5d4037;
+    font-size: 1.2rem;
+  }
 `;
 
 const ItemImage = styled.div`
@@ -98,6 +111,7 @@ const ItemImage = styled.div`
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+  border-radius: 5px;
 `;
 
 const PriceChange = styled.span`
