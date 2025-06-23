@@ -12,7 +12,7 @@ import MyPageModal from '../myPage/MyPageModal';
 import MyStocksModal from '../myStocks/MyStocksModal';
 import MyFriendsModal from '../friends/MyFriendsModal';
 import ShopModal from '../shop/ShopModal';
-import mainBackground from '../../assets/main-background3.png';
+import mainBackground from '../../assets/snow-background.jpeg';
 import PlayerCharacter from './PlayerCharacter';
 
 const MainContainer = styled.div`
