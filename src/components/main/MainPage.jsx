@@ -12,7 +12,7 @@ import MyPageModal from '../myPage/MyPageModal';
 import MyStocksModal from '../myStocks/MyStocksModal';
 import MyFriendsModal from '../friends/MyFriendsModal';
 import ShopModal from '../shop/ShopModal';
-import mainBackground from '../../assets/main-background4.jpeg';
+import mainBackground from '../../assets/main-background3.png';
 import PlayerCharacter from './PlayerCharacter';
 
 const MainContainer = styled.div`
@@ -33,7 +33,7 @@ const MainContainer = styled.div`
 const TopSection = styled.header`
   display: flex;
   justify-content: space-between;
-  height: 150px;
+  height: 170px;
 `;
 
 const MiddleSection = styled.main`
@@ -115,13 +115,13 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
         <NavContainer>
           {/* TODO: Add iconUrl prop, e.g., iconUrl="/src/assets/icons/trade.png" */}
           <NavItem label="매매" onClick={handleOpenTradeModal} />
-          <NavItem label="내 주식" onClick={handleOpenMyStocksModal} />
-          <NavItem label="상점" onClick={handleOpenShopModal} />
+          <NavItem iconUrl="/src/assets/dollar.png" label="내 주식" onClick={handleOpenMyStocksModal} />
+          <NavItem iconUrl="/src/assets/shop.png" label="상점" onClick={handleOpenShopModal} />
           <NavItem label="내 친구" onClick={handleOpenMyFriendsModal} />
         </NavContainer>
         <Chat />
         <NavContainer>
-          <NavItem label="설정" onClick={handleOpenSettingsModal} />
+          <NavItem iconUrl="/src/assets/setting.png" label="설정" onClick={handleOpenSettingsModal} />
           <NavItem label="나가기" onClick={handleOpenExitModal} />
         </NavContainer>
       </BottomSection>

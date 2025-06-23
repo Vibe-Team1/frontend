@@ -75,7 +75,7 @@ const useUserStore = create(
 
       // Assets
       assets: {
-        cash: 30000000,
+        cash: 1000000,
         stocks: [
           {
             id: 1,

@@ -93,7 +93,7 @@ const IndependentTestCharacter = () => {
       left={testPosition.left}
       direction={testDirection}
     >
-      <img src="/characters/1001.gif" alt="Test Character" onError={(e) => console.error('Failed to load test character image:', e)} />
+      <img src="/characters/501.gif" alt="Test Character" onError={(e) => console.error('Failed to load test character image:', e)} />
     </TestCharacterContainer>
   );
 };
