@@ -57,7 +57,6 @@ const ActionButton = styled.button`
   font-size: 1.2rem;
   font-weight: bold;
   border-radius: 8px;
-  cursor: pointer;
   border: 3px solid;
   transition: all 0.2s;
 

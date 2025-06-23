@@ -46,7 +46,6 @@ const CloseButton = styled.button`
   border-radius: 50%;
   width: 35px; height: 35px;
   font-size: 20px; font-weight: bold;
-  cursor: pointer;
   display: flex; justify-content: center; align-items: center;
   &:hover { background-color: #ffb74d; }
 `;
@@ -61,15 +60,26 @@ const ProfileContent = styled.div`
   align-items: center;
 `;
 
-const PlayerAvatar = styled.img`
-  width: 80px; height: 80px;
-  border-radius: 50%;
+const AvatarContainer = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
   border: 3px solid #d1c7b8;
+  background-color: white;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const AvatarImage = styled.img`
+  width: 100%;
+  position: absolute;
+  bottom: 5px; /* Adjust to move the image up */
+  left: 0;
 `;
 
 const PlayerInfo = styled.div`
   flex-grow: 1;
-  text-align: center;
 `;
 
 const PlayerName = styled.h3`
@@ -92,7 +102,6 @@ const AddFriendButton = styled.button`
   font-family: 'DNFBitBitv2', sans-serif;
   font-size: 1.2rem;
   color: #5d4037;
-  cursor: pointer;
 
   &:hover {
     background-color: #fdb968;
@@ -100,7 +109,6 @@ const AddFriendButton = styled.button`
 
   &:disabled {
     background-color: #ccc;
-    cursor: not-allowed;
   }
 `;
 
@@ -108,7 +116,10 @@ const PlayerProfileModal = ({ player, onClose }) => {
   const { friends, addFriend } = useUserStore();
   const [notification, setNotification] = useState('');
 
+  const isAlreadyFriend = player && friends.some(friend => friend.id === player.id);
+
   const handleAddFriend = () => {
+    if (!player) return;
     addFriend(player);
     setNotification(`${player.name}님을 친구로 추가했습니다.`);
   };
@@ -121,29 +132,27 @@ const PlayerProfileModal = ({ player, onClose }) => {
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <Title>{player ? '플레이어 정보' : '검색 결과'}</Title>
+        <Title>플레이어 정보</Title>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-
         {player ? (
           <>
             <ProfileContent>
-              <PlayerAvatar src={player.avatarUrl} alt={player.name} />
-              <PlayerInfo style={{ textAlign: 'left' }}>
+              <AvatarContainer>
+                <AvatarImage src={player.avatarUrl} alt={player.name} />
+              </AvatarContainer>
+              <PlayerInfo>
                 <PlayerName>{player.name}</PlayerName>
                 <PlayerStats>수익률: {player.profitRate}%</PlayerStats>
                 <PlayerStats>자산: {player.cash.toLocaleString()}G</PlayerStats>
               </PlayerInfo>
             </ProfileContent>
-            <AddFriendButton onClick={handleAddFriend} disabled={friends.some(f => f.id === player.id)}>
-              {friends.some(f => f.id === player.id) ? '이미 친구입니다' : '친구 추가'}
+            <AddFriendButton onClick={handleAddFriend} disabled={isAlreadyFriend}>
+              {isAlreadyFriend ? '이미 친구입니다' : '친구 추가'}
             </AddFriendButton>
           </>
         ) : (
           <ProfileContent>
-            <PlayerInfo>
-              <PlayerName>플레이어를 찾을 수 없습니다.</PlayerName>
-              <PlayerStats>입력한 이름을 다시 확인해주세요.</PlayerStats>
-            </PlayerInfo>
+            <p>플레이어를 찾을 수 없습니다.</p>
           </ProfileContent>
         )}
       </ModalContainer>

@@ -9,7 +9,6 @@ const StyledPixelButton = styled.button`
   font-family: monospace; /* Using a generic monospace font */
   font-size: 24px;
   text-transform: uppercase;
-  cursor: pointer;
   transition:
     transform 0.1s ease-in-out,
     box-shadow 0.1s ease-in-out;

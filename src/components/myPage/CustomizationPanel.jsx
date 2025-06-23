@@ -11,7 +11,8 @@ const PanelContainer = styled.div`
 `;
 
 const Title = styled.h2`
-  background-color: #8e44ad;
+  background-color: #a1887f;
+  border: 3px solid #5d4037;
   color: white;
   padding: 5px 20px;
   border-radius: 10px;
@@ -34,7 +35,6 @@ const TabButton = styled.button`
     color: #5d4037;
     font-size: 1.1rem;
     font-weight: bold;
-    cursor: pointer;
 `;
 
 const ItemGrid = styled.div`
@@ -70,7 +70,6 @@ const ApplyButton = styled.button`
     border: 3px solid #5d4037;
     border-radius: 8px;
     font-size: 1.1rem;
-    cursor: pointer;
 `;
 
 const CustomizationPanel = () => {

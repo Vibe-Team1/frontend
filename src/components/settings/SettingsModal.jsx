@@ -52,7 +52,6 @@ const CloseButton = styled.button`
   height: 40px;
   font-size: 24px;
   font-weight: bold;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -105,7 +104,6 @@ const SwitchContainer = styled.div`
   display: flex;
   align-items: center;
   padding: 5px;
-  cursor: pointer;
   transition: background-color 0.3s ease;
 `;
 
@@ -131,7 +129,6 @@ const ScreenOptionButton = styled.button`
     font-size: 1.1rem;
     font-weight: bold;
     border-radius: 8px;
-    cursor: pointer;
     border: 3px solid ${props => props.active ? '#e65100' : '#ffab40'};
     background-color: ${props => props.active ? '#ffab40' : 'transparent'};
     color: #5d4037;

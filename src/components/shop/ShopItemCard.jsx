@@ -1,176 +1,113 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-import useUserStore from '../../store/useUserStore';
 
 const Card = styled.div`
-  width: 340px;
-  background-color: #f6f3e8;
-  border: 2px solid #d1c7b8;
+  width: 100%;
+  background: #fdfaf4;
+  border: 3px solid #bcaaa4;
   border-radius: 10px;
-  padding: 12px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
   font-family: 'DNFBitBitv2', sans-serif;
   color: #5d4037;
+  text-align: center;
+  box-sizing: border-box;
 `;
 
-const Header = styled.div`
-  background-color: #e9e2d4;
-  border-radius: 5px;
-  padding: 8px;
-  text-align: center;
+const IconContainer = styled.div`
+  width: 80px;
+  height: 80px;
+  background-color: white;
+  border: 3px solid #d1c7b8;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  overflow: hidden;
+  position: relative;
+`;
+
+const IconImage = styled.img`
+  width: 100%;
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+`;
+
+const ItemName = styled.h3`
+  margin: 0;
+  font-size: 1.3rem;
+  height: 30px;
+`;
+
+const ItemDescription = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  min-height: 30px;
+  flex-grow: 1;
+`;
+
+const ItemPrice = styled.div`
+  font-size: 1.1rem;
+  font-weight: bold;
+`;
+
+const QuantityControl = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+`;
+
+const QuantityButton = styled.button`
+  width: 35px;
+  height: 35px;
+  background-color: #e0e0e0;
+  border: 2px solid #bdbdbd;
+  border-radius: 50%;
   font-size: 1.5rem;
   font-weight: bold;
 `;
 
-const Body = styled.div`
-  display: flex;
-  gap: 15px;
-  align-items: center;
-`;
-
-const ItemIcon = styled.div`
-  width: 70px;
-  height: 70px;
-  font-size: 45px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #e9e2d4;
-  border-radius: 10px;
-  flex-shrink: 0;
-`;
-
-const InfoSection = styled.div`
-  flex-grow: 1;
-  display: grid;
-  gap: 8px;
-`;
-
-const InfoRow = styled.div`
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  align-items: baseline;
-`;
-
-const InfoLabel = styled.span`
-  font-size: 0.9rem;
-  color: #6d4c41;
-`;
-
-const InfoValue = styled.span`
-  font-size: 1rem;
-  font-weight: bold;
-  text-align: right;
-`;
-
-const Controls = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 5px;
-`;
-
-const QuantityButton = styled.button`
-  background-color: #fcae4f;
-  border: 2px solid #e5932a;
-  border-radius: 5px;
-  color: #5d4037;
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-size: 1rem;
-  font-weight: bold;
-  padding: 8px 12px;
-  cursor: pointer;
-  &:hover {
-    background-color: #fdb968;
-  }
-`;
-
-const QuantityInput = styled.input`
-  width: 100%;
-  text-align: center;
+const QuantityDisplay = styled.span`
   font-size: 1.2rem;
-  font-family: 'DNFBitBitv2', sans-serif;
-  border: 2px solid #e9e2d4;
-  border-radius: 5px;
-  padding: 6px;
-  background-color: white;
-  color: #5d4037;
-`;
-
-const ActionButton = styled(QuantityButton)`
-  flex-grow: 1;
-`;
-
-const TotalPrice = styled.div`
-  flex-grow: 2;
-  text-align: center;
-  font-size: 1.1rem;
   font-weight: bold;
-  border: 2px solid #e9e2d4;
-  border-radius: 5px;
-  padding: 8px;
-  background-color: white;
+  width: 30px;
+  text-align: center;
 `;
 
-const ShopItemCard = ({ item, onCartChange }) => {
+const ShopItemCard = ({ item, onCartChange, maxQuantity, disabled }) => {
   const [quantity, setQuantity] = useState(0);
-  const { cash } = useUserStore((state) => state.assets);
-  const maxBuyable = item.price > 0 ? Math.floor(cash / item.price) : 0;
-
-  useEffect(() => {
-    onCartChange(item, quantity);
-  }, [quantity, item, onCartChange]);
 
   const handleQuantityChange = (amount) => {
-    setQuantity((prev) => {
-      const newQuantity = Math.max(0, prev + amount);
-      return Math.min(newQuantity, maxBuyable);
-    });
-  };
-
-  const handleInputChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (isNaN(value) || value < 0) {
-      setQuantity(0);
-    } else {
-      setQuantity(Math.min(value, maxBuyable));
+    let newQuantity = Math.max(0, quantity + amount);
+    if (maxQuantity !== undefined) {
+      newQuantity = Math.min(newQuantity, maxQuantity);
     }
+    setQuantity(newQuantity);
+    onCartChange(item, newQuantity);
   };
-
-  const setMax = () => {
-    setQuantity(maxBuyable);
-  };
+  
+  const isImageUrl = typeof item.icon === 'string' && item.icon.startsWith('/');
 
   return (
     <Card>
-      <Header>{item.name}</Header>
-      <Body>
-        <ItemIcon>{item.icon}</ItemIcon>
-        <InfoSection>
-          <InfoRow>
-            <InfoLabel>효과</InfoLabel>
-            <InfoValue>{item.description}</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>가격</InfoLabel>
-            <InfoValue>{item.price.toLocaleString()}G</InfoValue>
-          </InfoRow>
-        </InfoSection>
-      </Body>
-      <Controls>
-        <QuantityButton onClick={() => handleQuantityChange(-10)}>-10</QuantityButton>
-        <QuantityButton onClick={() => handleQuantityChange(-1)}>-1</QuantityButton>
-        <QuantityInput type="number" value={quantity} onChange={handleInputChange} />
-        <QuantityButton onClick={() => handleQuantityChange(1)}>+1</QuantityButton>
-        <QuantityButton onClick={() => handleQuantityChange(10)}>+10</QuantityButton>
-      </Controls>
-      <Controls>
-        <ActionButton onClick={() => setQuantity(0)}>최소</ActionButton>
-        <ActionButton onClick={setMax}>최대</ActionButton>
-        <TotalPrice>{(quantity * item.price).toLocaleString()} (G)</TotalPrice>
-      </Controls>
+      <IconContainer>
+        {isImageUrl ? <IconImage src={item.icon} alt={item.name} /> : item.icon}
+      </IconContainer>
+      <ItemName>{item.name}</ItemName>
+      <ItemDescription>{item.description}</ItemDescription>
+      <ItemPrice>{item.price.toLocaleString()} G</ItemPrice>
+
+      <QuantityControl>
+        <QuantityButton onClick={() => handleQuantityChange(-1)}>-</QuantityButton>
+        <QuantityDisplay>{quantity}</QuantityDisplay>
+        <QuantityButton onClick={() => handleQuantityChange(1)} disabled={disabled && quantity === 0}>+</QuantityButton>
+      </QuantityControl>
     </Card>
   );
 };

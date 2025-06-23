@@ -78,7 +78,6 @@ const QuantityButton = styled.button`
   border: 2px solid #ffa726;
   color: #5d4037;
   font-weight: bold;
-  cursor: pointer;
   padding: 5px 10px;
   border-radius: 5px;
   &:hover {

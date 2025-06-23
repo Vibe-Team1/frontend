@@ -55,7 +55,6 @@ const CloseButton = styled.button`
   height: 40px;
   font-size: 24px;
   font-weight: bold;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -112,7 +111,6 @@ const Tab = styled.button`
   padding: 15px 30px;
   font-size: 1.2rem;
   font-weight: bold;
-  cursor: pointer;
   background-color: ${({ $active }) => ($active ? "white" : "transparent")};
   border: none;
   border-bottom: 5px solid

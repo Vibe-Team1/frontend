@@ -70,7 +70,6 @@ const Button = styled.button`
   border-radius: 10px;
   font-size: 1.2rem;
   font-weight: bold;
-  cursor: pointer;
   font-family: monospace;
 
   &:hover {

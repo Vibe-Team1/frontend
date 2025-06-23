@@ -4,6 +4,8 @@ import useUserStore from '../../store/useUserStore';
 import ShopItemCard from './ShopItemCard';
 import ReceiptComponent from '../stockList/Receipt';
 import NotificationModal from '../common/NotificationModal';
+import GachaResultModal from './GachaResultModal';
+import ConfirmModal from '../common/ConfirmModal';
 
 const scaleUp = keyframes`
   from {
@@ -54,7 +56,6 @@ const CloseButton = styled.button`
   height: 40px;
   font-size: 24px;
   font-weight: bold;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -111,7 +112,6 @@ const Tab = styled.button`
   padding: 15px 30px;
   font-size: 1.2rem;
   font-weight: bold;
-  cursor: pointer;
   background-color: ${({ $active }) => ($active ? 'white' : 'transparent')};
   border: none;
   border-bottom: 5px solid ${({ $active }) => ($active ? '#8d6e63' : 'transparent')};
@@ -126,31 +126,77 @@ const Tab = styled.button`
 const ItemList = styled.div`
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(2, auto);
-  justify-content: center;
-  gap: 25px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
   overflow-y: auto;
   padding: 10px;
   align-content: flex-start;
 `;
 
-const shopItems = [
-  { id: 'red_potion', name: '빨간 물약', description: '다음 매도 시 수익 5% 추가', price: 100000, icon: '🍷' },
-  { id: 'blue_potion', name: '파란 물약', description: '다음 거래 시 수수료 면제', price: 200000, icon: '💧' },
+const characterItems = Array.from({ length: 12 }, (_, i) => {
+  const numbers = [101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201];
+  const gifNumStr = numbers[i];
+
+  return {
+    id: `slime_${gifNumStr}`,
+    name: `슬라임 ${i + 1}`,
+    description: '새로운 슬라임 캐릭터를 잠금 해제합니다.',
+    price: 150000 * (i + 1),
+    icon: `/characters/${gifNumStr}.gif`,
+  };
+});
+
+const costumeItems = [
+  // TODO: Add costume items here
+  { id: 'fancy_hat', name: '멋진 모자', description: '캐릭터에 멋진 모자를 씌웁니다.', price: 50000, icon: '🎩' },
+  { id: 'cool_sunglasses', name: '선글라스', description: '캐릭터에 선글라스를 씌웁니다.', price: 75000, icon: '🕶️' },
 ];
+
+const gachaItems = [
+  { id: 'random_character_box', name: '랜덤 캐릭터 상자', description: '랜덤으로 캐릭터 하나를 획득합니다.', price: 100000, icon: '/etcIcon/pixel-ticket.jpg' },
+  { id: 'random_costume_box', name: '랜덤 의상 상자', description: '랜덤으로 의상 하나를 획득합니다.', price: 100000, icon: '/etcIcon/pixel-ticket.jpg' },
+];
+
+const itemLists = {
+  character: characterItems,
+  costume: costumeItems,
+  item: gachaItems,
+};
 
 const ShopModal = ({ onClose }) => {
   const [cart, setCart] = useState({});
-  const [activeTab, setActiveTab] = useState('buy');
+  const [activeTab, setActiveTab] = useState('character');
   const [resetKey, setResetKey] = useState(0);
   const [notification, setNotification] = useState('');
+  const [gachaResult, setGachaResult] = useState(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  const gachaInCart = Object.keys(cart).find((key) => key.startsWith('random_'));
 
   const { cash } = useUserStore((state) => state.assets);
   const { inventory, updateCash, setInventory } = useUserStore();
 
   const handleCartChange = (item, quantity) => {
+    const isGachaItem = item.id.startsWith('random_');
+    if (isGachaItem && quantity > 1) {
+      setNotification('뽑기 아이템은 하나만 구매할 수 있습니다.');
+      return;
+    }
+    
     setCart((prevCart) => {
       const newCart = { ...prevCart };
+
+      if (isGachaItem) {
+        // 다른 뽑기 아이템이 카트에 있는지 확인
+        const otherGachaInCart = Object.keys(prevCart).find(
+          (key) => key.startsWith('random_') && key !== item.id
+        );
+        if (otherGachaInCart) {
+          setNotification('한 번에 한 종류의 뽑기 아이템만 구매할 수 있습니다.');
+          return prevCart; // 변경하지 않음
+        }
+      }
+
       if (quantity > 0) {
         newCart[item.id] = { item, quantity };
       } else {
@@ -160,7 +206,15 @@ const ShopModal = ({ onClose }) => {
     });
   };
 
-  const handlePurchase = () => {
+  const initiatePurchase = () => {
+    if (Object.keys(cart).length === 0) {
+      setNotification('구매할 상품을 선택해주세요.');
+      return;
+    }
+    setIsConfirmOpen(true);
+  };
+
+  const executePurchase = () => {
     let totalCost = 0;
     Object.values(cart).forEach(({ item, quantity }) => {
       totalCost += item.price * quantity;
@@ -173,15 +227,31 @@ const ShopModal = ({ onClose }) => {
 
     updateCash(-totalCost);
 
-    const newInventory = { ...inventory };
-    Object.values(cart).forEach(({ item, quantity }) => {
-      newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
-    });
-    setInventory(newInventory);
+    const purchasedItem = Object.values(cart)[0].item;
+    const isGacha = purchasedItem.id.startsWith('random_');
 
-    setNotification('구매가 완료되었습니다.');
+    if (isGacha) {
+      const isCharacterBox = purchasedItem.id === 'random_character_box';
+      const rewardPool = isCharacterBox ? characterItems : costumeItems;
+      const randomIndex = Math.floor(Math.random() * rewardPool.length);
+      const reward = rewardPool[randomIndex];
+      
+      // TODO: Add the reward to the user's actual inventory/unlocked list in useUserStore
+      
+      setGachaResult(reward);
+
+    } else {
+      const newInventory = { ...inventory };
+      Object.values(cart).forEach(({ item, quantity }) => {
+        newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
+      });
+      setInventory(newInventory);
+      setNotification('구매가 완료되었습니다.');
+    }
+
     setCart({});
     setResetKey((prev) => prev + 1);
+    setIsConfirmOpen(false);
   };
 
   const handleCloseNotification = () => {
@@ -202,30 +272,40 @@ const ShopModal = ({ onClose }) => {
 
         <ModalContent>
           <LeftNav>
-            <Tab $active={activeTab === 'buy'} onClick={() => setActiveTab('buy')}>
-              구매
+            <Tab $active={activeTab === 'character'} onClick={() => setActiveTab('character')}>
+              캐릭터
             </Tab>
-            <Tab $active={activeTab === 'sell'} onClick={() => setActiveTab('sell')}>
-              판매
+            <Tab $active={activeTab === 'costume'} onClick={() => setActiveTab('costume')}>
+              의상
+            </Tab>
+            <Tab $active={activeTab === 'item'} onClick={() => setActiveTab('item')}>
+              아이템
             </Tab>
           </LeftNav>
 
           <>
             <ItemList>
-              {shopItems.map((item) => (
-                <ShopItemCard
-                  key={`${item.id}-${resetKey}`}
-                  item={item}
-                  onCartChange={handleCartChange}
-                  mode={activeTab}
-                />
-              ))}
+              {itemLists[activeTab].map((item) => {
+                const isGachaItem = item.id.startsWith('random_');
+                const canAddGacha = !gachaInCart || gachaInCart === item.id;
+
+                return (
+                  <ShopItemCard
+                    key={`${item.id}-${resetKey}`}
+                    item={item}
+                    onCartChange={handleCartChange}
+                    maxQuantity={isGachaItem ? 1 : undefined}
+                    disabled={isGachaItem && !canAddGacha}
+                  />
+                );
+              })}
             </ItemList>
 
             <ReceiptComponent
               cart={cart}
-              onPurchase={handlePurchase}
-              mode={activeTab}
+              onPurchase={initiatePurchase}
+              mode="buy"
+              isShop={true}
             />
           </>
         </ModalContent>
@@ -234,6 +314,19 @@ const ShopModal = ({ onClose }) => {
         <NotificationModal
           message={notification}
           onClose={handleCloseNotification}
+        />
+      )}
+      {gachaResult && (
+        <GachaResultModal
+          rewardItem={gachaResult}
+          onClose={() => setGachaResult(null)}
+        />
+      )}
+      {isConfirmOpen && (
+        <ConfirmModal
+          message="정말 구매하시겠습니까?"
+          onConfirm={executePurchase}
+          onCancel={() => setIsConfirmOpen(false)}
         />
       )}
     </ModalOverlay>

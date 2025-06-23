@@ -15,15 +15,22 @@ const PanelContainer = styled.div`
   gap: 20px;
 `;
 
-const ProfileImage = styled.div`
+const AvatarContainer = styled.div`
   width: 150px;
   height: 150px;
-  background-image: url('/src/assets/stockIcon/005930.png');
-  background-size: cover;
-  background-position: center;
-  background-color: #eee; /* Placeholder */
-  border: 3px solid #d8c8b0;
   border-radius: 10px;
+  border: 3px solid #d8c8b0;
+  background-color: white;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const AvatarImage = styled.img`
+  width: 100%;
+  position: absolute;
+  bottom: 5px; /* Adjust to move the image up */
+  left: 0;
 `;
 
 const InfoSection = styled.div`
@@ -53,7 +60,6 @@ const EditButton = styled.button`
   color: #5d4037;
   padding: 5px 10px;
   border-radius: 5px;
-  cursor: pointer;
 `;
 
 const EquippedItems = styled.div`
@@ -88,7 +94,6 @@ const ActionButton = styled.button`
   border-radius: 8px;
   font-size: 1rem;
   font-weight: bold;
-  cursor: pointer;
   border: 3px solid;
 
   &.logout {
@@ -146,7 +151,9 @@ const UserInfoPanel = () => {
 
   return (
     <PanelContainer>
-      <ProfileImage style={{ backgroundImage: `url(${user.avatar})` }} />
+      <AvatarContainer>
+        <AvatarImage src={user.avatar} alt={user.name} />
+      </AvatarContainer>
       <InfoSection>
         <InfoRow>
           <Label>칭호</Label> 

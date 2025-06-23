@@ -38,7 +38,6 @@ const FilterButton = styled.button`
   color: #5d4037;
   font-family: monospace;
   font-weight: bold;
-  cursor: pointer;
 `;
 
 const Table = styled.div`

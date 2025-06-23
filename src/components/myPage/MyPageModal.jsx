@@ -45,7 +45,7 @@ const CloseButton = styled.button`
   background-color: #ffab40; color: #5d4037;
   border: 3px solid #c62828; border-radius: 50%;
   width: 40px; height: 40px; font-size: 24px; font-weight: bold;
-  cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 10;
+  display: flex; justify-content: center; align-items: center; z-index: 10;
   &:hover { background-color: #ffb74d; }
 `;
 

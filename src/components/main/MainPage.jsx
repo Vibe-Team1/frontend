@@ -16,9 +16,9 @@ import ShopModal from '../shop/ShopModal';
 const MainContainer = styled.div`
   width: 100vw;
   height: 100vh;
-  background-image: url('/src/assets/main-background3.png');
-  // background-size: 50% 150%;
-  background-size: 90% 90%;
+  background-image: url('/src/assets/main-background.gif');
+  background-size: 50% 150%;
+  // background-size: 90% 90%;
   background-position: center;
   display: flex;
   flex-direction: column;
@@ -98,7 +98,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   return (
     <MainContainer>
       <TopSection>
-        <div onClick={handleOpenMyPageModal} style={{ cursor: 'pointer' }}>
+        <div onClick={handleOpenMyPageModal} >
           <Profile />
         </div>
         <GameStatus />

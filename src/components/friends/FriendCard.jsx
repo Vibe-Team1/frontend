@@ -20,12 +20,22 @@ const TopSection = styled.div`
   align-items: center;
 `;
 
-const Avatar = styled.img`
-  width: 60px;
-  height: 60px;
+const AvatarContainer = styled.div`
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   border: 3px solid #a1887f;
-  background-color: #fff;
+  background-color: white;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+`;
+
+const Avatar = styled.img`
+  width: 100%;
+  position: absolute;
+  bottom: 10px;
+  left: 0;
 `;
 
 const InfoSection = styled.div`
@@ -69,7 +79,6 @@ const ActionButton = styled.button`
   font-family: monospace;
   font-size: 1.1rem;
   font-weight: bold;
-  cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
@@ -84,7 +93,9 @@ const FriendCard = ({ friend }) => {
   return (
     <CardContainer>
       <TopSection>
-        <Avatar src={avatarUrl} alt={name} />
+        <AvatarContainer>
+          <Avatar src={avatarUrl} alt={name} />
+        </AvatarContainer>
         <InfoSection>
           <FriendName>{name}</FriendName>
           <InfoRow>

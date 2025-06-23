@@ -15,7 +15,6 @@ const NavItemContainer = styled.div`
   box-shadow: inset 0 0 0 4px #8d6e63;
   color: #5d4037;
   font-family: monospace;
-  cursor: pointer;
   transition: all 0.1s ease-in-out;
 
   &:hover {

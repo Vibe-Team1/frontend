@@ -58,7 +58,6 @@ const SendButton = styled.button`
   padding: 10px 15px;
   border-radius: 5px;
   font-weight: bold;
-  cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {

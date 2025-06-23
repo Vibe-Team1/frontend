@@ -67,21 +67,20 @@ const PurchaseButton = styled.button`
   border-radius: 10px;
   font-size: 1.5rem;
   font-weight: bold;
-  cursor: pointer;
 
   &:hover {
     background-color: #a1887f;
   }
 `;
 
-const Receipt = ({ cart, onPurchase, mode = 'buy' }) => {
+const Receipt = ({ cart, onPurchase, mode = 'buy', isShop = false }) => {
   const cartItems = Object.values(cart);
 
   const subtotal = cartItems.reduce((acc, current) => {
     return acc + current.item.price * current.quantity;
   }, 0);
 
-  const fee = subtotal * 0.01; // 1% 수수료
+  const fee = isShop ? 0 : subtotal * 0.01;
   const isBuyMode = mode === 'buy';
   
   // 매수는 수수료를 더하고, 매도는 수수료를 차감
@@ -110,13 +109,15 @@ const Receipt = ({ cart, onPurchase, mode = 'buy' }) => {
         ))}
       </ItemList>
       <TotalsSection>
-        <TotalRow>
-          <span>수수료 (1%)</span>
-          <span>
-            {isBuyMode ? '+' : '-'}
-            {fee.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-          </span>
-        </TotalRow>
+        {!isShop && (
+          <TotalRow>
+            <span>수수료 (1%)</span>
+            <span>
+              {isBuyMode ? '+' : '-'}
+              {fee.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </span>
+          </TotalRow>
+        )}
         <TotalRow>
           <span>{isBuyMode ? '총 구매 금액' : '총 판매 금액'}</span>
           <span>

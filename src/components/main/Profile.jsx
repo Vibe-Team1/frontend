@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import useUserStore from '../../store/useUserStore';
 
 // TODO: 이 경로에 실제 프로필 사진 파일을 넣어주세요. 예: /src/assets/profile-pic.png
-const profilePicUrl = '/src/assets/stockIcon/005930.png';
+// const profilePicUrl = '/src/assets/stockIcon/005930.png';
 
 const ProfileContainer = styled.div`
   display: flex;
@@ -18,15 +18,22 @@ const ProfileContainer = styled.div`
   box-shadow: inset 0 0 0 4px #8d6e63; /* 안쪽 테두리 효과 */
 `;
 
-const ProfileImage = styled.div`
+const AvatarContainer = styled.div`
   width: 85px;
   height: 85px;
-  background-image: url(${profilePicUrl});
-  background-size: cover;
-  background-position: center;
   border-radius: 6px;
+  border: 3px solid #c9b79c;
+  background-color: white;
+  overflow: hidden;
+  position: relative;
   flex-shrink: 0;
-  border: 3px solid #c9b79c; /* 이미지 주변의 밝은 테두리 */
+`;
+
+const AvatarImage = styled.img`
+  width: 100%;
+  position: absolute;
+  bottom: 5px; /* Adjust to move the image up */
+  left: 0;
 `;
 
 const ProfileName = styled.p`
@@ -45,7 +52,9 @@ const Profile = () => {
 
   return (
     <ProfileContainer>
-      <ProfileImage style={{ backgroundImage: `url(${avatar})` }} />
+      <AvatarContainer>
+        <AvatarImage src={avatar} alt={name} />
+      </AvatarContainer>
       <ProfileName>{name}</ProfileName>
     </ProfileContainer>
   );
