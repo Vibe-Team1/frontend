@@ -1,0 +1,36 @@
+.landing-background {
+  width: 100vw;
+  height: 100vh;
+  background: url("/landing.jpg") no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 80px; /* 살짝 아래로 */
+}
+
+.landing-title {
+  font-family: "Noto Sans KR", "Nanum Gothic", sans-serif;
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 32px;
+  text-shadow: 2px 2px 8px #000;
+}
+
+.landing-gif {
+  width: 180px;
+  margin-bottom: 24px;
+  margin-top: 60px ;
+}
+
+.landing-tip {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-top: 16px;
+  text-shadow: 1px 1px 4px #000;
+}

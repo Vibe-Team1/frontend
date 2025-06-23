@@ -1,34 +1,31 @@
 // src/components/landing/LandingPage.jsx
 
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import Button from '../common/Button';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./LandingPage.css";
 
-const Container = styled.div`
-  width: 100vw;
-  height: 100vh;
-  background-image: url('/src/assets/main-background2.gif');
-  background-size: 50% 150%;
-  background-position: center;
-  background-repeat: repeat;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-`;
+const backgroundImage = "/src/assets/landing.jpg"; // 실제 경로로 수정 필요
+const gifImage = "/characters/101.gif"; // public 폴더 기준 경로
+const title = "슬라임 키우기 안녕하세요!";
 
-const LandingPage = () => {
+export default function LandingPage() {
   const navigate = useNavigate();
 
-  const handleStartClick = () => {
-    navigate('/main');
-  };
+  useEffect(() => {
+    const handleKeyDown = () => {
+      navigate("/main"); // 이동할 경로
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
 
   return (
-    <Container>
-      <Button onClick={handleStartClick}>시작하기</Button>
-    </Container>
+    <div className="landing-background">
+      <div className="landing-content">
+        <h1 className="landing-title">{title}</h1>
+        <img src={gifImage} alt="캐릭터" className="landing-gif" />
+        <p className="landing-tip">아무 키나 눌러 시작하세요</p>
+      </div>
+    </div>
   );
-};
-
-export default LandingPage;
+}
