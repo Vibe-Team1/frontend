@@ -88,6 +88,8 @@ const IndependentTestCharacter = () => {
   }, [testPosition.left]);
 
   return (
+    <>
+    
     <TestCharacterContainer 
       top={testPosition.top}
       left={testPosition.left}
@@ -95,6 +97,14 @@ const IndependentTestCharacter = () => {
     >
       <img src="/characters/501.gif" alt="Test Character" onError={(e) => console.error('Failed to load test character image:', e)} />
     </TestCharacterContainer>
+    <TestCharacterContainer 
+      top={testPosition.top}
+      left={testPosition.left}
+      direction={testDirection}
+    >
+      <img src="/characters/601.gif" alt="Test Character" onError={(e) => console.error('Failed to load test character image:', e)} />
+    </TestCharacterContainer>
+    </>
   );
 };
 
