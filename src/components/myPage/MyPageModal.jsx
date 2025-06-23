@@ -53,7 +53,23 @@ const Content = styled.div`
   display: flex;
   gap: 20px;
   height: 100%;
+  
+  & > *:first-child {
+    width: 350px;
+    min-width: 350px;
+    max-width: 350px;
+  }
+  & > *:last-child {
+    flex-grow: 1;
+    min-width: 0;
+  }
 `;
+
+const getCharacterImage = (characterCode, costumeCode) => {
+  // 의상코드는 항상 2자리로 맞춤
+  const costumeStr = costumeCode.toString().padStart(2, '0');
+  return `/characters/${characterCode}${costumeStr}.gif`;
+};
 
 const MyPageModal = ({ onClose }) => {
   return (

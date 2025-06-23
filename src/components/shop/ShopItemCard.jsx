@@ -80,7 +80,7 @@ const QuantityDisplay = styled.span`
   text-align: center;
 `;
 
-const ShopItemCard = ({ item, onCartChange, maxQuantity, disabled }) => {
+const ShopItemCard = ({ item, onCartChange, maxQuantity, disabled, disablePlus }) => {
   const [quantity, setQuantity] = useState(0);
 
   const handleQuantityChange = (amount) => {
@@ -106,7 +106,9 @@ const ShopItemCard = ({ item, onCartChange, maxQuantity, disabled }) => {
       <QuantityControl>
         <QuantityButton onClick={() => handleQuantityChange(-1)}>-</QuantityButton>
         <QuantityDisplay>{quantity}</QuantityDisplay>
-        <QuantityButton onClick={() => handleQuantityChange(1)} disabled={disabled && quantity === 0}>+</QuantityButton>
+        <QuantityButton onClick={() => handleQuantityChange(1)} disabled={disabled && quantity === 0 || disablePlus}>
+          +
+        </QuantityButton>
       </QuantityControl>
     </Card>
   );

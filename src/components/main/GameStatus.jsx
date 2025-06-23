@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import useUserStore from '../../store/useUserStore';
 import sunIconUrl from '../../assets/sun.png';
 import coinIconUrl from '../../assets/coin.png';
-import gemIconUrl from '../../assets/gem.png';
+import gemIconUrl from '../../assets/acorn.png';
 
 const GameStatusContainer = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   background-color: #f3e9d3; /* 양피지 느낌의 배경색 */
   border: 7px solid #4a2e2a; /* 어두운 나무 색상의 테두리 */
@@ -39,8 +39,8 @@ const StatusRight = styled.div`
 `;
 
 const SunIcon = styled.div`
-  width: 55px;
-  height: 55px;
+  width: 60px;
+  height: 60px;
   background-image: url(${sunIconUrl});
   background-size: contain;
   background-repeat: no-repeat;
@@ -82,7 +82,7 @@ const AssetText = styled.span`
 const GameStatus = () => {
   const { cash } = useUserStore((state) => state.assets);
   // 더미 값
-  const gem = 123;
+  const gem = 1000;
   const { formatted } = useUserStore((state) => state.gameDate);
 
   return (
@@ -96,11 +96,11 @@ const GameStatus = () => {
         <AssetsRow>
           <div style={{display:'flex',alignItems:'center'}}>
             <AssetIcon src={coinIconUrl} alt="코인" />
-            <AssetText>{cash.toLocaleString()} 원</AssetText>
+            <AssetText>{cash.toLocaleString()}</AssetText>
           </div>
           <div style={{display:'flex',alignItems:'center'}}>
             <AssetIcon src={gemIconUrl} alt="보석" />
-            <AssetText>{gem}</AssetText>
+            <AssetText>{gem.toLocaleString()}</AssetText>
           </div>
         </AssetsRow>
       </StatusRight>

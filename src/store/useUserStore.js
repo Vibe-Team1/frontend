@@ -46,6 +46,15 @@ const useUserStore = create(
         totalTrades: 0, // 총 거래 횟수
         joinDate: "2024-01-01", // 가입일
       },
+      // 현재 선택된 캐릭터 정보
+      selectedCharacter: {
+        characterCode: 12, // 캐릭터 코드 (1, 2, 3, ..., 12)
+        costumeCode: 1, // 의상 코드 (1, 2, ..., 15)
+      },
+      // 현재 선택된 테마 정보
+      selectedTheme: {
+        background: "/src/assets/main-background3.png", // 기본 테마
+      },
       updateUsername: (name) =>
         set((state) => ({ user: { ...state.user, name } })),
       updateAvatar: (avatar) =>
@@ -61,6 +70,23 @@ const useUserStore = create(
       incrementTotalTrades: () =>
         set((state) => ({
           user: { ...state.user, totalTrades: state.user.totalTrades + 1 },
+        })),
+      // 캐릭터 변경 함수
+      updateSelectedCharacter: (characterCode) =>
+        set((state) => ({
+          selectedCharacter: { ...state.selectedCharacter, characterCode },
+          user: { ...state.user, avatar: `/characters/${characterCode}${state.selectedCharacter.costumeCode.toString().padStart(2, '0')}.gif` }
+        })),
+      // 의상 변경 함수
+      updateSelectedCostume: (costumeCode) =>
+        set((state) => ({
+          selectedCharacter: { ...state.selectedCharacter, costumeCode },
+          user: { ...state.user, avatar: `/characters/${state.selectedCharacter.characterCode}${costumeCode.toString().padStart(2, '0')}.gif` }
+        })),
+      // 테마 변경 함수
+      updateSelectedTheme: (background) =>
+        set((state) => ({
+          selectedTheme: { ...state.selectedTheme, background }
         })),
 
       // Vehicle

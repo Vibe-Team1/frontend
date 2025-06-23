@@ -108,19 +108,13 @@ const ActionButton = styled.button`
 `;
 
 const UserInfoPanel = () => {
-  const { user, updateUsername, updateTitle, updateExperience } = useUserStore();
+  const { user, updateUsername } = useUserStore();
   const [isEditingName, setIsEditingName] = useState(false);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingExperience, setIsEditingExperience] = useState(false);
   const [editName, setEditName] = useState(user.name);
-  const [editTitle, setEditTitle] = useState(user.title);
-  const [editExperience, setEditExperience] = useState(user.experience);
 
   useEffect(() => {
     setEditName(user.name);
-    setEditTitle(user.title);
-    setEditExperience(user.experience);
-  }, [user.name, user.title, user.experience]);
+  }, [user.name]);
 
   const handleNameEdit = () => {
     if (isEditingName) {
@@ -131,51 +125,12 @@ const UserInfoPanel = () => {
     }
   };
 
-  const handleTitleEdit = () => {
-    if (isEditingTitle) {
-      updateTitle(editTitle);
-      setIsEditingTitle(false);
-    } else {
-      setIsEditingTitle(true);
-    }
-  };
-
-  const handleExperienceEdit = () => {
-    if (isEditingExperience) {
-      updateExperience(editExperience);
-      setIsEditingExperience(false);
-    } else {
-      setIsEditingExperience(true);
-    }
-  };
-
   return (
     <PanelContainer>
       <AvatarContainer>
         <AvatarImage src={user.avatar} alt={user.name} />
       </AvatarContainer>
       <InfoSection>
-        <InfoRow>
-          <Label>칭호</Label> 
-          {isEditingTitle ? (
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              style={{ 
-                border: '1px solid #ccc', 
-                padding: '2px 5px', 
-                borderRadius: '3px',
-                width: '80px'
-              }}
-            />
-          ) : (
-            <Value>{user.title}</Value>
-          )}
-          <EditButton onClick={handleTitleEdit}>
-            {isEditingTitle ? '저장' : '수정'}
-          </EditButton>
-        </InfoRow>
         <InfoRow>
           <Label>닉네임</Label> 
           {isEditingName ? (
@@ -198,51 +153,10 @@ const UserInfoPanel = () => {
           </EditButton>
         </InfoRow>
         <InfoRow>
-          <Label>경력</Label> 
-          {isEditingExperience ? (
-            <input
-              type="text"
-              value={editExperience}
-              onChange={(e) => setEditExperience(e.target.value)}
-              style={{ 
-                border: '1px solid #ccc', 
-                padding: '2px 5px', 
-                borderRadius: '3px',
-                width: '80px'
-              }}
-            />
-          ) : (
-            <Value>{user.experience}</Value>
-          )}
-          <EditButton onClick={handleExperienceEdit}>
-            {isEditingExperience ? '저장' : '수정'}
-          </EditButton>
-        </InfoRow>
-        <InfoRow>
-          <Label>레벨</Label> 
-          <Value>{user.level}</Value>
-        </InfoRow>
-        <InfoRow>
-          <Label>총 거래 횟수</Label> 
-          <Value>{user.totalTrades}회</Value>
-        </InfoRow>
-        <InfoRow>
           <Label>가입일</Label> 
           <Value>{user.joinDate}</Value>
         </InfoRow>
       </InfoSection>
-      <EquippedItems>
-        <Label>현재 착용 중인 아이템</Label>
-        <EquippedItemsGrid>
-            <EquippedItemSlot />
-            <EquippedItemSlot />
-            <EquippedItemSlot />
-        </EquippedItemsGrid>
-      </EquippedItems>
-      <ButtonGroup>
-        <ActionButton className="logout">로그아웃</ActionButton>
-        <ActionButton className="unregister">회원탈퇴</ActionButton>
-      </ButtonGroup>
     </PanelContainer>
   );
 };

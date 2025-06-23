@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-import useUserStore from '../../store/useUserStore';
-import ShopItemCard from './ShopItemCard';
-import ReceiptComponent from '../stockList/Receipt';
-import NotificationModal from '../common/NotificationModal';
-import GachaResultModal from './GachaResultModal';
-import ConfirmModal from '../common/ConfirmModal';
+import { useState } from "react";
+import styled, { keyframes } from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import ShopItemCard from "./ShopItemCard";
+import ReceiptComponent from "../stockList/Receipt";
+import NotificationModal from "../common/NotificationModal";
+import GachaResultModal from "./GachaResultModal";
+import ConfirmModal from "../common/ConfirmModal";
 
 const scaleUp = keyframes`
   from {
@@ -68,7 +68,7 @@ const CloseButton = styled.button`
 
 const Title = styled.h2`
   text-align: center;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   font-size: 2.5rem;
   color: #5d4037;
   margin-top: 0;
@@ -82,7 +82,7 @@ const TopInfoBar = styled.div`
   background-color: #d8c8b0;
   border-radius: 8px;
   margin-bottom: 20px;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   color: #5d4037;
 `;
 
@@ -112,14 +112,15 @@ const Tab = styled.button`
   padding: 15px 30px;
   font-size: 1.2rem;
   font-weight: bold;
-  background-color: ${({ $active }) => ($active ? 'white' : 'transparent')};
+  background-color: ${({ $active }) => ($active ? "white" : "transparent")};
   border: none;
-  border-bottom: 5px solid ${({ $active }) => ($active ? '#8d6e63' : 'transparent')};
+  border-bottom: 5px solid
+    ${({ $active }) => ($active ? "#8d6e63" : "transparent")};
   color: #5d4037;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
 
   &:hover {
-    background-color: ${({ $active }) => ($active ? 'white' : '#f7f2e9')};
+    background-color: ${({ $active }) => ($active ? "white" : "#f7f2e9")};
   }
 `;
 
@@ -134,13 +135,15 @@ const ItemList = styled.div`
 `;
 
 const characterItems = Array.from({ length: 12 }, (_, i) => {
-  const numbers = [101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201];
+  const numbers = [
+    101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201,
+  ];
   const gifNumStr = numbers[i];
 
   return {
     id: `slime_${gifNumStr}`,
     name: `슬라임 ${i + 1}`,
-    description: '새로운 슬라임 캐릭터를 잠금 해제합니다.',
+    description: "새로운 슬라임 캐릭터를 잠금 해제합니다.",
     price: 150000 * (i + 1),
     icon: `/characters/${gifNumStr}.gif`,
   };
@@ -148,13 +151,44 @@ const characterItems = Array.from({ length: 12 }, (_, i) => {
 
 const costumeItems = [
   // TODO: Add costume items here
-  { id: 'fancy_hat', name: '멋진 모자', description: '캐릭터에 멋진 모자를 씌웁니다.', price: 50000, icon: '🎩' },
-  { id: 'cool_sunglasses', name: '선글라스', description: '캐릭터에 선글라스를 씌웁니다.', price: 75000, icon: '🕶️' },
+  {
+    id: "fancy_hat",
+    name: "멋진 모자",
+    description: "캐릭터에 멋진 모자를 씌웁니다.",
+    price: 50000,
+    icon: "🎩",
+  },
+  {
+    id: "cool_sunglasses",
+    name: "선글라스",
+    description: "캐릭터에 선글라스를 씌웁니다.",
+    price: 75000,
+    icon: "🕶️",
+  },
 ];
 
 const gachaItems = [
-  { id: 'random_character_box', name: '랜덤 캐릭터 상자', description: '랜덤으로 캐릭터 하나를 획득합니다.', price: 100000, icon: '/etcIcon/pixel-ticket.jpg' },
-  { id: 'random_costume_box', name: '랜덤 의상 상자', description: '랜덤으로 의상 하나를 획득합니다.', price: 100000, icon: '/etcIcon/pixel-ticket.jpg' },
+  {
+    id: "normal_ticket",
+    name: "일반 티켓",
+    description: "일반 등급의 뽑기를 할 수 있는 티켓입니다.",
+    price: 5,
+    icon: "/etcIcon/pixel-ticket.jpg",
+  },
+  {
+    id: "rare_ticket",
+    name: "레어 티켓",
+    description: "레어 등급의 뽑기를 할 수 있는 티켓입니다.",
+    price: 10,
+    icon: "/etcIcon/pixel-ticket.jpg",
+  },
+  {
+    id: "legend_ticket",
+    name: "레전드 티켓",
+    description: "레전드 등급의 뽑기를 할 수 있는 티켓입니다.",
+    price: 20,
+    icon: "/etcIcon/pixel-ticket.jpg",
+  },
 ];
 
 const itemLists = {
@@ -165,34 +199,38 @@ const itemLists = {
 
 const ShopModal = ({ onClose }) => {
   const [cart, setCart] = useState({});
-  const [activeTab, setActiveTab] = useState('character');
+  const [activeTab, setActiveTab] = useState("character");
   const [resetKey, setResetKey] = useState(0);
-  const [notification, setNotification] = useState('');
+  const [notification, setNotification] = useState("");
   const [gachaResult, setGachaResult] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const gachaInCart = Object.keys(cart).find((key) => key.startsWith('random_'));
+  const gachaInCart = Object.keys(cart).find((key) =>
+    key.startsWith("random_")
+  );
 
   const { cash } = useUserStore((state) => state.assets);
   const { inventory, updateCash, setInventory } = useUserStore();
 
   const handleCartChange = (item, quantity) => {
-    const isGachaItem = item.id.startsWith('random_');
+    const isGachaItem = item.id.startsWith("random_");
     if (isGachaItem && quantity > 1) {
-      setNotification('뽑기 아이템은 하나만 구매할 수 있습니다.');
+      setNotification("뽑기 아이템은 하나만 구매할 수 있습니다.");
       return;
     }
-    
+
     setCart((prevCart) => {
       const newCart = { ...prevCart };
 
       if (isGachaItem) {
         // 다른 뽑기 아이템이 카트에 있는지 확인
         const otherGachaInCart = Object.keys(prevCart).find(
-          (key) => key.startsWith('random_') && key !== item.id
+          (key) => key.startsWith("random_") && key !== item.id
         );
         if (otherGachaInCart) {
-          setNotification('한 번에 한 종류의 뽑기 아이템만 구매할 수 있습니다.');
+          setNotification(
+            "한 번에 한 종류의 뽑기 아이템만 구매할 수 있습니다."
+          );
           return prevCart; // 변경하지 않음
         }
       }
@@ -208,7 +246,7 @@ const ShopModal = ({ onClose }) => {
 
   const initiatePurchase = () => {
     if (Object.keys(cart).length === 0) {
-      setNotification('구매할 상품을 선택해주세요.');
+      setNotification("구매할 상품을 선택해주세요.");
       return;
     }
     setIsConfirmOpen(true);
@@ -221,32 +259,36 @@ const ShopModal = ({ onClose }) => {
     });
 
     if (totalCost > cash) {
-      setNotification('현금이 부족합니다!');
+      setNotification("현금이 부족합니다!");
       return;
     }
 
     updateCash(-totalCost);
 
     const purchasedItem = Object.values(cart)[0].item;
-    const isGacha = purchasedItem.id.startsWith('random_');
+    const isGacha = purchasedItem.id.startsWith("random_");
+    const isTicket = ticketIds.includes(purchasedItem.id);
 
     if (isGacha) {
-      const isCharacterBox = purchasedItem.id === 'random_character_box';
+      const isCharacterBox = purchasedItem.id === "random_character_box";
       const rewardPool = isCharacterBox ? characterItems : costumeItems;
       const randomIndex = Math.floor(Math.random() * rewardPool.length);
       const reward = rewardPool[randomIndex];
-      
-      // TODO: Add the reward to the user's actual inventory/unlocked list in useUserStore
-      
       setGachaResult(reward);
-
+    } else if (isTicket) {
+      setGachaResult(purchasedItem);
+      const newInventory = { ...inventory };
+      Object.values(cart).forEach(({ item, quantity }) => {
+        newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
+      });
+      setInventory(newInventory);
     } else {
       const newInventory = { ...inventory };
       Object.values(cart).forEach(({ item, quantity }) => {
         newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
       });
       setInventory(newInventory);
-      setNotification('구매가 완료되었습니다.');
+      setNotification("구매가 완료되었습니다.");
     }
 
     setCart({});
@@ -255,8 +297,10 @@ const ShopModal = ({ onClose }) => {
   };
 
   const handleCloseNotification = () => {
-    setNotification('');
+    setNotification("");
   };
+
+  const ticketIds = ["normal_ticket", "rare_ticket", "legend_ticket"];
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -272,13 +316,22 @@ const ShopModal = ({ onClose }) => {
 
         <ModalContent>
           <LeftNav>
-            <Tab $active={activeTab === 'character'} onClick={() => setActiveTab('character')}>
+            <Tab
+              $active={activeTab === "character"}
+              onClick={() => setActiveTab("character")}
+            >
               캐릭터
             </Tab>
-            <Tab $active={activeTab === 'costume'} onClick={() => setActiveTab('costume')}>
+            <Tab
+              $active={activeTab === "costume"}
+              onClick={() => setActiveTab("costume")}
+            >
               의상
             </Tab>
-            <Tab $active={activeTab === 'item'} onClick={() => setActiveTab('item')}>
+            <Tab
+              $active={activeTab === "item"}
+              onClick={() => setActiveTab("item")}
+            >
               아이템
             </Tab>
           </LeftNav>
@@ -286,9 +339,21 @@ const ShopModal = ({ onClose }) => {
           <>
             <ItemList>
               {itemLists[activeTab].map((item) => {
-                const isGachaItem = item.id.startsWith('random_');
+                const isGachaItem = item.id.startsWith("random_");
+                const isTicket = ticketIds.includes(item.id);
                 const canAddGacha = !gachaInCart || gachaInCart === item.id;
-
+                let disablePlus = false;
+                if (isTicket) {
+                  const totalTicketCount = Object.keys(cart)
+                    .filter((key) => ticketIds.includes(key))
+                    .reduce((acc, key) => acc + cart[key].quantity, 0);
+                  if (totalTicketCount > 0 && (!cart[item.id] || cart[item.id].quantity === 0)) {
+                    disablePlus = true;
+                  }
+                  if (cart[item.id] && cart[item.id].quantity >= 1) {
+                    disablePlus = true;
+                  }
+                }
                 return (
                   <ShopItemCard
                     key={`${item.id}-${resetKey}`}
@@ -296,6 +361,7 @@ const ShopModal = ({ onClose }) => {
                     onCartChange={handleCartChange}
                     maxQuantity={isGachaItem ? 1 : undefined}
                     disabled={isGachaItem && !canAddGacha}
+                    disablePlus={disablePlus}
                   />
                 );
               })}
@@ -333,4 +399,4 @@ const ShopModal = ({ onClose }) => {
   );
 };
 
-export default ShopModal; 
+export default ShopModal;

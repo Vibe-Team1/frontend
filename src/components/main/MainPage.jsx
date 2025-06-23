@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import useUserStore from '../../store/useUserStore';
 import Profile from './Profile';
 import GameStatus from './GameStatus';
 import NavItem from './NavItem';
@@ -12,13 +13,15 @@ import MyPageModal from '../myPage/MyPageModal';
 import MyStocksModal from '../myStocks/MyStocksModal';
 import MyFriendsModal from '../friends/MyFriendsModal';
 import ShopModal from '../shop/ShopModal';
-import mainBackground from '../../assets/main-background3.png';
 import PlayerCharacter from './PlayerCharacter';
+import addFriendIconUrl from '../../assets/addFriend.png';
+import stockIconUrl from '../../assets/stockIcon.png';
+import doorIconUrl from '../../assets/door.png';
 
 const MainContainer = styled.div`
   width: 100vw;
   height: 100vh;
-  background-image: url(${mainBackground});
+  background-image: url(${props => props.backgroundImage});
   background-size: auto 100%;
   background-repeat: repeat-x;
   background-position: center;
@@ -59,6 +62,7 @@ const BottomNav = styled.nav`
 `;
 
 const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
+  const selectedTheme = useUserStore((state) => state.selectedTheme);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
@@ -99,7 +103,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   };
 
   return (
-    <MainContainer>
+    <MainContainer backgroundImage={selectedTheme.background}>
       <TopSection>
         <div onClick={handleOpenMyPageModal} >
           <Profile />
@@ -114,15 +118,15 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
       <BottomSection>
         <NavContainer>
           {/* TODO: Add iconUrl prop, e.g., iconUrl="/src/assets/icons/trade.png" */}
-          <NavItem label="매매" onClick={handleOpenTradeModal} />
+          <NavItem iconUrl={stockIconUrl} label="매매" onClick={handleOpenTradeModal} />
           <NavItem iconUrl="/src/assets/dollar.png" label="내 주식" onClick={handleOpenMyStocksModal} />
           <NavItem iconUrl="/src/assets/shop.png" label="상점" onClick={handleOpenShopModal} />
-          <NavItem label="내 친구" onClick={handleOpenMyFriendsModal} />
+          <NavItem iconUrl={addFriendIconUrl} label="내 친구" onClick={handleOpenMyFriendsModal} />
         </NavContainer>
         <Chat />
         <NavContainer>
           <NavItem iconUrl="/src/assets/setting.png" label="설정" onClick={handleOpenSettingsModal} />
-          <NavItem label="나가기" onClick={handleOpenExitModal} />
+          <NavItem iconUrl={doorIconUrl} label="나가기" onClick={handleOpenExitModal} />
         </NavContainer>
       </BottomSection>
       {isTradeModalOpen && <TradeModal onClose={handleCloseTradeModal} />}
