@@ -12,13 +12,15 @@ import MyPageModal from '../myPage/MyPageModal';
 import MyStocksModal from '../myStocks/MyStocksModal';
 import MyFriendsModal from '../friends/MyFriendsModal';
 import ShopModal from '../shop/ShopModal';
+import mainBackground from '../../assets/main-background4.jpeg';
+import PlayerCharacter from './PlayerCharacter';
 
 const MainContainer = styled.div`
   width: 100vw;
   height: 100vh;
-  background-image: url('/src/assets/main-background.gif');
-  background-size: 50% 150%;
-  // background-size: 90% 90%;
+  background-image: url(${mainBackground});
+  background-size: auto 100%;
+  background-repeat: repeat-x;
   background-position: center;
   display: flex;
   flex-direction: column;
@@ -36,6 +38,7 @@ const TopSection = styled.header`
 
 const MiddleSection = styled.main`
   flex-grow: 1; /* Takes up the remaining space */
+  position: relative; /* Set position context for the character */
 `;
 
 const BottomSection = styled.footer`
@@ -104,7 +107,9 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
         <GameStatus />
       </TopSection>
 
-      <MiddleSection>{/* Middle content can go here */}</MiddleSection>
+      <MiddleSection>
+        <PlayerCharacter />
+      </MiddleSection>
 
       <BottomSection>
         <NavContainer>
