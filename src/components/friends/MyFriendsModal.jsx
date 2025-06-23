@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import useUserStore from '../../store/useUserStore';
 import FriendCard from './FriendCard';
 
 const scaleUp = keyframes`
@@ -59,35 +60,16 @@ const FriendList = styled.div`
   min-height: 0;
 `;
 
-const dummyFriends = [
-    { id: 1, name: '주식왕초보', profitRate: 15.78, cash: 1250000, avatarUrl: 'https://i.pravatar.cc/150?img=1' },
-    { id: 2, name: '매수버튼고장남', profitRate: -5.20, cash: 890000, avatarUrl: 'https://i.pravatar.cc/150?img=2' },
-    { id: 3, name: '떡상가즈아', profitRate: 32.11, cash: 3400000, avatarUrl: 'https://i.pravatar.cc/150?img=3' },
-    { id: 4, name: '오늘만산다', profitRate: -22.50, cash: 450000, avatarUrl: 'https://i.pravatar.cc/150?img=4' },
-    { id: 5, name: '존버는승리한다', profitRate: 2.15, cash: 2100000, avatarUrl: 'https://i.pravatar.cc/150?img=5' },
-    { id: 6, name: '단타의신', profitRate: 8.99, cash: 1500000, avatarUrl: 'https://i.pravatar.cc/150?img=6' },
-    { id: 7, name: '주식왕초보', profitRate: 15.78, cash: 1250000, avatarUrl: 'https://i.pravatar.cc/150?img=1' },
-    { id: 8, name: '매수버튼고장남', profitRate: -5.20, cash: 890000, avatarUrl: 'https://i.pravatar.cc/150?img=2' },
-    { id: 9, name: '떡상가즈아', profitRate: 32.11, cash: 3400000, avatarUrl: 'https://i.pravatar.cc/150?img=3' },
-    { id: 10, name: '오늘만산다', profitRate: -22.50, cash: 450000, avatarUrl: 'https://i.pravatar.cc/150?img=4' },
-    { id: 11, name: '존버는승리한다', profitRate: 2.15, cash: 2100000, avatarUrl: 'https://i.pravatar.cc/150?img=5' },
-    { id: 12, name: '단타의신', profitRate: 8.99, cash: 1500000, avatarUrl: 'https://i.pravatar.cc/150?img=6' },
-    { id: 13, name: '주식왕초보', profitRate: 15.78, cash: 1250000, avatarUrl: 'https://i.pravatar.cc/150?img=1' },
-    { id: 14, name: '매수버튼고장남', profitRate: -5.20, cash: 890000, avatarUrl: 'https://i.pravatar.cc/150?img=2' },
-    { id: 15, name: '떡상가즈아', profitRate: 32.11, cash: 3400000, avatarUrl: 'https://i.pravatar.cc/150?img=3' },
-    { id: 16, name: '오늘만산다', profitRate: -22.50, cash: 450000, avatarUrl: 'https://i.pravatar.cc/150?img=4' },
-    { id: 17, name: '존버는승리한다', profitRate: 2.15, cash: 2100000, avatarUrl: 'https://i.pravatar.cc/150?img=5' },
-    { id: 18, name: '단타의신', profitRate: 8.99, cash: 1500000, avatarUrl: 'https://i.pravatar.cc/150?img=6' },
-];
-
 const MyFriendsModal = ({ onClose }) => {
+  const friends = useUserStore((state) => state.friends);
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>&times;</CloseButton>
         <Title>내 친구</Title>
         <FriendList>
-            {dummyFriends.map(friend => (
+            {friends.map(friend => (
                 <FriendCard key={friend.id} friend={friend} />
             ))}
         </FriendList>

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import useUserStore from '../../store/useUserStore';
 
 // TODO: 이 경로에 실제 프로필 사진 파일을 넣어주세요. 예: /src/assets/profile-pic.png
 const profilePicUrl = '/src/assets/stockIcon/005930.png';
@@ -40,10 +41,12 @@ const ProfileName = styled.p`
 `;
 
 const Profile = () => {
+  const { name, avatar } = useUserStore((state) => state.user);
+
   return (
     <ProfileContainer>
-      <ProfileImage />
-      <ProfileName>폴리텍</ProfileName>
+      <ProfileImage style={{ backgroundImage: `url(${avatar})` }} />
+      <ProfileName>{name}</ProfileName>
     </ProfileContainer>
   );
 };

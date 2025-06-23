@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
 
 const CardContainer = styled.div`
   background-color: #e8dcc5;
@@ -128,11 +129,26 @@ const ActionButton = styled(QuantityButton)`
   background-color: #ffab40;
 `;
 
-const StockItemCard = ({ item, onCartChange }) => {
+const StockItemCard = ({ item, onCartChange, mode }) => {
   const [quantity, setQuantity] = useState(0);
+  const { stocks, cash } = useUserStore((state) => state.assets);
+  
+  // 보유 주식 찾기
+  const ownedStock = stocks.find(stock => stock.name === item.name);
+  const ownedQuantity = ownedStock ? ownedStock.quantity : 0;
+  
+  // 최대 구매/매도 가능 수량 계산
+  let maxQuantity;
+  if (mode === "sell") {
+    // 매도 모드: 보유 수량
+    maxQuantity = ownedQuantity;
+  } else {
+    // 매수 모드: 현금으로 구매 가능한 수량
+    maxQuantity = Math.floor(cash / item.price);
+  }
 
   const updateQuantity = (newAmount) => {
-    const newQuantity = Math.max(0, Math.min(item.available, newAmount));
+    const newQuantity = Math.max(0, Math.min(maxQuantity, newAmount));
     setQuantity(newQuantity);
     if (onCartChange) {
       onCartChange(item, newQuantity);
@@ -151,7 +167,12 @@ const StockItemCard = ({ item, onCartChange }) => {
         <ItemImage imageUrl={item.imageUrl} />
         <DetailsContainer>
           <InfoRow>
-            <span>{item.available}주 구매 가능</span>
+            <span>
+              {mode === "sell" 
+                ? `${ownedQuantity}주 보유` 
+                : `${maxQuantity}주 구매 가능`
+              }
+            </span>
           </InfoRow>
           <InfoRow>
             <span>전일 대비</span>
@@ -163,8 +184,8 @@ const StockItemCard = ({ item, onCartChange }) => {
           <InfoRow>
             <span>나의 평균 구매가</span>
             <span>
-              {item.avgBuyPrice
-                ? `${item.avgBuyPrice.toLocaleString()}G`
+              {ownedStock
+                ? `${ownedStock.avgBuyPrice.toLocaleString()}G`
                 : "미구매"}
             </span>
           </InfoRow>
@@ -196,7 +217,7 @@ const StockItemCard = ({ item, onCartChange }) => {
         </QuantitySelector>
         <ActionButtons>
           <ActionButton onClick={() => updateQuantity(0)}>최소</ActionButton>
-          <ActionButton onClick={() => updateQuantity(item.available)}>
+          <ActionButton onClick={() => updateQuantity(maxQuantity)}>
             최대
           </ActionButton>
           <TotalPrice>

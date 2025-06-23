@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import useUserStore from '../../store/useUserStore';
 
 // TODO: 이 경로에 실제 코인 이미지 파일을 넣어주세요. 예: /src/assets/coin.png
 const coinIconUrl = '/src/assets/coin.png';
@@ -48,12 +49,15 @@ const MoneyText = styled.p`
 `;
 
 const GameStatus = () => {
+  const { cash } = useUserStore((state) => state.assets);
+  const { formatted } = useUserStore((state) => state.gameDate);
+
   return (
     <GameStatusContainer>
-      <DateText>2025년 6월 21일</DateText>
+      <DateText>{formatted}</DateText>
       <MoneyContainer>
         <CoinIcon />
-        <MoneyText>1,000,000 원</MoneyText>
+        <MoneyText>{cash.toLocaleString()} 원</MoneyText>
       </MoneyContainer>
     </GameStatusContainer>
   );

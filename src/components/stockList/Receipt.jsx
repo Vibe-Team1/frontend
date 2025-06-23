@@ -81,10 +81,11 @@ const Receipt = ({ cart, onPurchase, mode = 'buy' }) => {
     return acc + current.item.price * current.quantity;
   }, 0);
 
-  const fee = subtotal * 0.01; // 1% 수수료 (임시)
-  const total = subtotal + fee;
-
+  const fee = subtotal * 0.01; // 1% 수수료
   const isBuyMode = mode === 'buy';
+  
+  // 매수는 수수료를 더하고, 매도는 수수료를 차감
+  const total = isBuyMode ? subtotal + fee : subtotal - fee;
 
   return (
     <ReceiptContainer>
@@ -112,6 +113,7 @@ const Receipt = ({ cart, onPurchase, mode = 'buy' }) => {
         <TotalRow>
           <span>수수료 (1%)</span>
           <span>
+            {isBuyMode ? '+' : '-'}
             {fee.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </span>
         </TotalRow>

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import useUserStore from '../../store/useUserStore';
 
 const ViewContainer = styled.div`
   flex-grow: 1;
@@ -120,6 +121,14 @@ const PriceChange = styled.span`
 `;
 
 const MarketView = ({ items }) => {
+  const { stocks } = useUserStore((state) => state.assets);
+  
+  // 각 주식의 보유 개수를 찾는 함수
+  const getOwnedQuantity = (itemName) => {
+    const ownedStock = stocks.find(stock => stock.name === itemName);
+    return ownedStock ? ownedStock.quantity : 0;
+  };
+
   return (
     <ViewContainer>
       <Header>
@@ -144,7 +153,7 @@ const MarketView = ({ items }) => {
                 <span>{item.name}</span>
               </ItemCell>
               <span>{item.price.toLocaleString()}</span>
-              <span>{item.owned || 0}</span>
+              <span>{getOwnedQuantity(item.name)}</span>
               <PriceChange isPositive={item.change > 0}>
                 {item.change > 0 ? '+' : ''}{item.change.toLocaleString()}
               </PriceChange>

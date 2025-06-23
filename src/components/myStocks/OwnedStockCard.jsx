@@ -90,8 +90,13 @@ const Value = styled.span`
 `;
 
 const OwnedStockCard = ({ item }) => {
-  const { name, quantity, price, change, avgBuyPrice, profit, imageUrl } = item;
-  const changeColor = change >= 0 ? '#0D47A1' : '#D32F2F';
+  const { name, quantity, avgBuyPrice, imageUrl } = item;
+  
+  // 현재가를 평균 구매가 기준으로 약간의 변동을 주어 계산 (실제로는 API에서 가져와야 함)
+  const currentPrice = avgBuyPrice * (1 + (Math.random() - 0.5) * 0.1);
+  const profit = (currentPrice - avgBuyPrice) * quantity;
+  
+  const changeColor = profit >= 0 ? '#0D47A1' : '#D32F2F';
   const profitColor = profit >= 0 ? '#0D47A1' : '#D32F2F';
 
   return (
@@ -101,14 +106,13 @@ const OwnedStockCard = ({ item }) => {
         <LeftSection>
           <Quantity>x{quantity}</Quantity>
           <ItemImage src={imageUrl} alt={name} />
-          <PricePerItem>1개당 {price.toLocaleString()}G</PricePerItem>
+          <PricePerItem>1개당 {Math.round(currentPrice).toLocaleString()}G</PricePerItem>
         </LeftSection>
         <RightSection>
           <InfoRow>
-            <Label>전일 대비</Label>
+            <Label>현재가</Label>
             <Value color={changeColor}>
-              {change >= 0 ? '' : ''}
-              {change.toLocaleString()}G
+              {Math.round(currentPrice).toLocaleString()}G
             </Value>
           </InfoRow>
           <InfoRow>
@@ -119,7 +123,7 @@ const OwnedStockCard = ({ item }) => {
             <Label>구매 대비 이익</Label>
             <Value color={profitColor}>
               {profit >= 0 ? '+' : ''}
-              {profit.toLocaleString()}G
+              {Math.round(profit).toLocaleString()}G
             </Value>
           </InfoRow>
         </RightSection>

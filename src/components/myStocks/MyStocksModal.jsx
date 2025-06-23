@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components';
+import useUserStore from '../../store/useUserStore';
 import OwnedStockCard from './OwnedStockCard';
 
 const scaleUp = keyframes`
@@ -80,19 +81,9 @@ const StockList = styled.div`
   padding: 5px 15px 5px 5px;
 `;
 
-// Dummy data for owned stocks
-const dummyOwnedStocks = [
-    { id: 1, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 2, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 3, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 4, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 5, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 6, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 7, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-    { id: 8, name: '삼성전자', quantity: 8, price: 57000, change: 400, avgBuyPrice: 56000, profit: 8000, imageUrl: '/src/assets/stockIcon/005930.png' },
-];
-
 const MyStocksModal = ({ onClose, onNavigate }) => {
+  const { stocks } = useUserStore((state) => state.assets);
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
@@ -100,7 +91,7 @@ const MyStocksModal = ({ onClose, onNavigate }) => {
         <Title>내 주식</Title>
         <Content>
           <StockList>
-            {dummyOwnedStocks.map((item) => (
+            {stocks.map((item) => (
               <OwnedStockCard key={item.id} item={item} />
             ))}
           </StockList>
