@@ -1,134 +1,102 @@
 import styled from 'styled-components';
 
-const CardContainer = styled.div`
-  background: #fdfaf4;
-  border: 3px solid #bcaaa4;
+const Card = styled.div`
+  width: 330px;
+  background-color: #f6f3e8;
+  border: 2px solid #d1c7b8;
   border-radius: 10px;
-  overflow: hidden;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'DNFBitBitv2', sans-serif;
   color: #5d4037;
-  display: flex;
-  flex-direction: column;
-  min-height: 250px;
 `;
 
-const CardHeader = styled.div`
-  background-color: #d7ccc8;
-  padding: 10px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.4rem;
-  border-bottom: 3px solid #bcaaa4;
-  font-family: monospace;
-`;
-
-const CardBody = styled.div`
-  padding: 20px;
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  flex-grow: 1;
-`;
-
-const LeftSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  flex-basis: 120px;
-  flex-shrink: 0;
-  height: 100%;
-`;
-
-const ItemImage = styled.img`
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
+const Header = styled.div`
+  background-color: #e9e2d4;
   border-radius: 5px;
+  padding: 8px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
 `;
 
-const PricePerItem = styled.span`
+const Body = styled.div`
+  display: flex;
+  gap: 15px;
+  align-items: center;
+`;
+
+const StockIcon = styled.img`
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background-color: white;
+`;
+
+const InfoSection = styled.div`
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 8px 4px;
+`;
+
+const InfoLabel = styled.span`
+  font-size: 0.9rem;
+  color: #6d4c41;
+`;
+
+const InfoValue = styled.span`
   font-size: 1rem;
   font-weight: bold;
-  font-family: monospace;
-`;
-
-const RightSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  flex-grow: 1;
-  padding-top: 10px;
-`;
-
-const Quantity = styled.div`
-  font-size: 1.2rem;
-  font-weight: bold;
-  align-self: flex-start;
-  padding-bottom: 10px;
-  font-family: monospace;
-`;
-
-const InfoRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.1rem;
-  width: 100%;
-  font-family: monospace;
-`;
-
-const Label = styled.span`
-  font-weight: 500;
-  color: #6d5b4f;
-`;
-
-const Value = styled.span`
-  font-weight: bold;
-  color: ${(props) => props.color || '#5D4037'};
   text-align: right;
+  color: ${(props) => props.color || '#5d4037'};
 `;
 
-const OwnedStockCard = ({ item }) => {
+const OwnedStockCard = ({ item, currentPrice }) => {
   const { name, quantity, avgBuyPrice, imageUrl } = item;
-  
-  // 현재가를 평균 구매가 기준으로 약간의 변동을 주어 계산 (실제로는 API에서 가져와야 함)
-  const currentPrice = avgBuyPrice * (1 + (Math.random() - 0.5) * 0.1);
-  const profit = (currentPrice - avgBuyPrice) * quantity;
-  
-  const changeColor = profit >= 0 ? '#0D47A1' : '#D32F2F';
-  const profitColor = profit >= 0 ? '#0D47A1' : '#D32F2F';
+
+  const totalBuyPrice = avgBuyPrice * quantity;
+  const currentTotalValue = currentPrice * quantity;
+  const profit = currentTotalValue - totalBuyPrice;
+  const profitRate = totalBuyPrice > 0 ? (profit / totalBuyPrice) * 100 : 0;
+
+  const profitColor = profit > 0 ? '#c84a31' : (profit < 0 ? '#1252a1' : '#5d4037');
 
   return (
-    <CardContainer>
-      <CardHeader>{name}</CardHeader>
-      <CardBody>
-        <LeftSection>
-          <Quantity>x{quantity}</Quantity>
-          <ItemImage src={imageUrl} alt={name} />
-          <PricePerItem>1개당 {Math.round(currentPrice).toLocaleString()}G</PricePerItem>
-        </LeftSection>
-        <RightSection>
-          <InfoRow>
-            <Label>현재가</Label>
-            <Value color={changeColor}>
-              {Math.round(currentPrice).toLocaleString()}G
-            </Value>
-          </InfoRow>
-          <InfoRow>
-            <Label>나의 평균 구매가</Label>
-            <Value>{avgBuyPrice.toLocaleString()}G</Value>
-          </InfoRow>
-          <InfoRow>
-            <Label>구매 대비 이익</Label>
-            <Value color={profitColor}>
-              {profit >= 0 ? '+' : ''}
-              {Math.round(profit).toLocaleString()}G
-            </Value>
-          </InfoRow>
-        </RightSection>
-      </CardBody>
-    </CardContainer>
+    <Card>
+      <Header>{name}</Header>
+      <Body>
+        <StockIcon src={imageUrl} alt={name} />
+        <InfoSection>
+          <InfoLabel>보유 수량</InfoLabel>
+          <InfoValue>{quantity}주</InfoValue>
+
+          <InfoLabel>나의 평균가</InfoLabel>
+          <InfoValue>{avgBuyPrice.toLocaleString()}G</InfoValue>
+
+          <InfoLabel>현재가</InfoLabel>
+          <InfoValue>{currentPrice.toLocaleString()}G</InfoValue>
+          
+          <InfoLabel>총 평가액</InfoLabel>
+          <InfoValue>{Math.round(currentTotalValue).toLocaleString()}G</InfoValue>
+
+          <InfoLabel>평가 손익</InfoLabel>
+          <InfoValue color={profitColor}>
+            {profit >= 0 ? '+' : ''}
+            {Math.round(profit).toLocaleString()}G
+          </InfoValue>
+
+          <InfoLabel>수익률</InfoLabel>
+          <InfoValue color={profitColor}>
+            {profitRate.toFixed(2)}%
+          </InfoValue>
+        </InfoSection>
+      </Body>
+    </Card>
   );
 };
 

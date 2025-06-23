@@ -50,6 +50,16 @@ const useUserStore = create(
       updateTotalTrades: (totalTrades) => set((state) => ({ user: { ...state.user, totalTrades } })),
       incrementTotalTrades: () => set((state) => ({ user: { ...state.user, totalTrades: state.user.totalTrades + 1 } })),
 
+      // Vehicle
+      vehicleLevel: 0, // 0: 손수레, 1: 자전거, ...
+      setVehicleLevel: (level) => set({ vehicleLevel: level }),
+
+      // Inventory for items
+      inventory: {
+        // e.g., red_potion: 5, blue_potion: 2
+      },
+      setInventory: (inventory) => set({ inventory }),
+      
       // Assets
       assets: {
         cash: 30000000,
@@ -75,6 +85,12 @@ const useUserStore = create(
         { id: 3, name: '떡상가즈아', profitRate: 32.11, cash: 3400000, avatarUrl: 'https://i.pravatar.cc/150?img=3' },
       ],
       addFriend: (friend) => set((state) => ({ friends: [...state.friends, friend] })),
+
+      // Transactions
+      transactions: [],
+      addTransaction: (transaction) => set((state) => ({
+        transactions: [{ ...transaction, date: new Date().toISOString() }, ...state.transactions]
+      })),
     }),
     {
       name: 'user-storage', // Key in localStorage

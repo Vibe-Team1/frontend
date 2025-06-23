@@ -11,6 +11,7 @@ import ConfirmModal from '../common/ConfirmModal';
 import MyPageModal from '../myPage/MyPageModal';
 import MyStocksModal from '../myStocks/MyStocksModal';
 import MyFriendsModal from '../friends/MyFriendsModal';
+import ShopModal from '../shop/ShopModal';
 
 const MainContainer = styled.div`
   width: 100vw;
@@ -61,6 +62,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const [isMyPageModalOpen, setIsMyPageModalOpen] = useState(false);
   const [isMyStocksModalOpen, setIsMyStocksModalOpen] = useState(false);
   const [isMyFriendsModalOpen, setIsMyFriendsModalOpen] = useState(false);
+  const [isShopModalOpen, setIsShopModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleOpenTradeModal = () => setIsTradeModalOpen(true);
@@ -80,6 +82,9 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
 
   const handleOpenMyFriendsModal = () => setIsMyFriendsModalOpen(true);
   const handleCloseMyFriendsModal = () => setIsMyFriendsModalOpen(false);
+
+  const handleOpenShopModal = () => setIsShopModalOpen(true);
+  const handleCloseShopModal = () => setIsShopModalOpen(false);
 
   const handleNavigateToTrade = () => {
     setIsMyStocksModalOpen(false);
@@ -106,6 +111,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
           {/* TODO: Add iconUrl prop, e.g., iconUrl="/src/assets/icons/trade.png" */}
           <NavItem label="매매" onClick={handleOpenTradeModal} />
           <NavItem label="내 주식" onClick={handleOpenMyStocksModal} />
+          <NavItem label="상점" onClick={handleOpenShopModal} />
           <NavItem label="내 친구" onClick={handleOpenMyFriendsModal} />
         </NavContainer>
         <Chat />
@@ -124,6 +130,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
         />}
       {isMyPageModalOpen && <MyPageModal onClose={handleCloseMyPageModal} />}
       {isMyStocksModalOpen && <MyStocksModal onClose={handleCloseMyStocksModal} onNavigate={handleNavigateToTrade} />}
+      {isShopModalOpen && <ShopModal onClose={handleCloseShopModal} />}
       {isMyFriendsModalOpen && <MyFriendsModal onClose={handleCloseMyFriendsModal} />}
       {isExitModalOpen && (
         <ConfirmModal 

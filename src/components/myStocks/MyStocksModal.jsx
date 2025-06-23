@@ -74,15 +74,37 @@ const NavigateButton = styled.button`
 const StockList = styled.div`
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 20px;
   overflow-y: auto;
   align-content: flex-start;
   padding: 5px 15px 5px 5px;
 `;
 
+// This dummy data should ideally come from a shared source or API
+const dummyItems = [
+    { id: 1, name: '삼성전자', price: 82400 },
+    { id: 2, name: 'SK하이닉스', price: 184500 },
+    { id: 3, name: 'LG에너지솔루션', price: 388000 },
+    { id: 4, name: '삼성바이오로직스', price: 805000 },
+    { id: 5, name: '현대차', price: 251000 },
+    { id: 6, name: '기아', price: 115000 },
+    { id: 7, name: '셀트리온', price: 181000 },
+    { id: 8, name: 'POSCO홀딩스', price: 435000 },
+    { id: 9, name: 'NAVER', price: 188000 },
+    { id: 10, name: 'LG화학', price: 450000 },
+    { id: 11, name: '삼성SDI', price: 420000 },
+    { id: 12, name: '삼성물산', price: 150000 },
+    { id: 13, name: 'KB금융', price: 76000 },
+    { id: 14, name: '카카오', price: 52000 },
+];
+
 const MyStocksModal = ({ onClose, onNavigate }) => {
   const { stocks } = useUserStore((state) => state.assets);
+  const stockPrices = dummyItems.reduce((acc, item) => {
+    acc[item.name] = item.price;
+    return acc;
+  }, {});
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -91,9 +113,12 @@ const MyStocksModal = ({ onClose, onNavigate }) => {
         <Title>내 주식</Title>
         <Content>
           <StockList>
-            {stocks.map((item) => (
-              <OwnedStockCard key={item.id} item={item} />
-            ))}
+            {stocks.map((item) => {
+              const currentPrice = stockPrices[item.name] || item.avgBuyPrice;
+              return (
+                <OwnedStockCard key={item.id} item={item} currentPrice={currentPrice} />
+              )
+            })}
           </StockList>
           <NavigateButton onClick={onNavigate}>구매/판매 창으로</NavigateButton>
         </Content>
