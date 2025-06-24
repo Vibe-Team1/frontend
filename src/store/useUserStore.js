@@ -6,17 +6,23 @@ import {
   getUserStocks,
   getPortfolio,
 } from "../api/tradeApi";
+import { getMe, updateMe, getFriends, addFriend } from "../api/accountApi";
+
+const today = new Date();
+const initialGameDate = {
+  year: today.getFullYear(),
+  month: today.getMonth() + 1,
+  day: today.getDate(),
+  formatted: `${today.getFullYear()}년 ${
+    today.getMonth() + 1
+  }월 ${today.getDate()}일`,
+};
 
 const useUserStore = create(
   persist(
     (set, get) => ({
       // Game Date
-      gameDate: {
-        year: 2025,
-        month: 6,
-        day: 21,
-        formatted: "2025년 6월 21일",
-      },
+      gameDate: initialGameDate,
       updateGameDate: (year, month, day) =>
         set(() => ({
           gameDate: {
@@ -303,8 +309,20 @@ const useUserStore = create(
         }
       },
 
-      // 초기 데이터 로드
+      fetchMe: async () => {
+        try {
+          const response = await getMe();
+          const userData = response.data.data;
+          const avatar = "/characters/101.gif";
+          set({ user: { ...userData, avatar } });
+        } catch (error) {
+          console.error("유저 정보 조회 실패:", error);
+          set({ user: null });
+        }
+      },
+
       initializeData: async () => {
+        await get().fetchMe();
         await get().fetchAccountInfo();
         await get().fetchUserStocks();
         await get().fetchPortfolio();
@@ -312,6 +330,48 @@ const useUserStore = create(
 
       // 에러 초기화
       clearError: () => set({ error: null }),
+
+      // 유저 정보(닉네임, 아바타 등) 변경 및 store 갱신
+      updateMeInStore: async (data) => {
+        try {
+          await updateMe(data); // PATCH
+          await get().fetchMe(); // 변경 후 최신 정보로 갱신
+          return { success: true };
+        } catch (error) {
+          console.error("유저 정보 변경 실패:", error);
+          return { success: false, error };
+        }
+      },
+
+      // 친구 목록 불러오기 (API)
+      fetchFriends: async () => {
+        try {
+          const response = await getFriends();
+          // API 응답에 따라 friends 데이터 구조 맞춤
+          const friendsData = response.data.data || [];
+          set({ friends: friendsData });
+        } catch (error) {
+          console.error("친구 목록 불러오기 실패:", error);
+        }
+      },
+
+      // 친구 추가 (API)
+      addFriendAsync: async (friendIdOrObj) => {
+        try {
+          // friendIdOrObj가 id면 { friendId: ... }로, 객체면 그대로
+          const payload =
+            typeof friendIdOrObj === "string" ||
+            typeof friendIdOrObj === "number"
+              ? { friendId: friendIdOrObj }
+              : friendIdOrObj;
+          await addFriend(payload);
+          await get().fetchFriends(); // 추가 후 목록 갱신
+          return { success: true };
+        } catch (error) {
+          console.error("친구 추가 실패:", error);
+          return { success: false, error };
+        }
+      },
     }),
     {
       name: "user-storage", // Key in localStorage

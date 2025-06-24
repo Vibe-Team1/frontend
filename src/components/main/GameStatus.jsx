@@ -1,8 +1,8 @@
-import styled from 'styled-components';
-import useUserStore from '../../store/useUserStore';
-import sunIconUrl from '../../assets/sun.png';
-import coinIconUrl from '../../assets/coin.png';
-import gemIconUrl from '../../assets/acorn.png';
+import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import sunIconUrl from "../../assets/sun.png";
+import coinIconUrl from "../../assets/coin.png";
+import gemIconUrl from "../../assets/acorn.png";
 
 const GameStatusContainer = styled.div`
   display: flex;
@@ -80,9 +80,7 @@ const AssetText = styled.span`
 `;
 
 const GameStatus = () => {
-  const { cash } = useUserStore((state) => state.assets);
-  // 더미 값
-  const gem = 1000;
+  const { cash, acorn } = useUserStore((state) => state.assets);
   const { formatted } = useUserStore((state) => state.gameDate);
 
   return (
@@ -94,13 +92,13 @@ const GameStatus = () => {
       <StatusRight>
         <DateText>{formatted}</DateText>
         <AssetsRow>
-          <div style={{display:'flex',alignItems:'center'}}>
+          <div style={{ display: "flex", alignItems: "center" }}>
             <AssetIcon src={coinIconUrl} alt="코인" />
-            <AssetText>{cash.toLocaleString()}</AssetText>
+            <AssetText>{cash?.toLocaleString()}</AssetText>
           </div>
-          <div style={{display:'flex',alignItems:'center'}}>
-            <AssetIcon src={gemIconUrl} alt="보석" />
-            <AssetText>{gem.toLocaleString()}</AssetText>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <AssetIcon src={gemIconUrl} alt="도토리" />
+            <AssetText>{acorn?.toLocaleString()}</AssetText>
           </div>
         </AssetsRow>
       </StatusRight>
@@ -108,4 +106,4 @@ const GameStatus = () => {
   );
 };
 
-export default GameStatus; 
+export default GameStatus;

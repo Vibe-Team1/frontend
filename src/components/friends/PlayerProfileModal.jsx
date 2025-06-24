@@ -1,7 +1,7 @@
-import styled, { keyframes } from 'styled-components';
-import useUserStore from '../../store/useUserStore';
-import NotificationModal from '../common/NotificationModal';
-import { useState } from 'react';
+import styled, { keyframes } from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import NotificationModal from "../common/NotificationModal";
+import { useState, useCallback } from "react";
 
 const scaleUp = keyframes`
   from {
@@ -15,19 +15,26 @@ const scaleUp = keyframes`
 `;
 
 const ModalOverlay = styled.div`
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  display: flex; justify-content: center; align-items: center; z-index: 1050; // Higher z-index
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; // Higher z-index
 `;
 
 const ModalContainer = styled.div`
   width: 500px;
   background-color: #f3e9d3;
   border: 10px solid #4a2e2a;
-  border-image: url('/src/assets/modal_border.png') 10 stretch;
+  border-image: url("/src/assets/modal_border.png") 10 stretch;
   border-radius: 10px;
   padding: 20px;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   color: #5d4037;
   animation: ${scaleUp} 0.25s ease-out forwards;
   position: relative;
@@ -40,14 +47,22 @@ const Title = styled.h2`
 `;
 
 const CloseButton = styled.button`
-  position: absolute; top: 10px; right: 10px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   background-color: #ffab40;
   border: 3px solid #c62828;
   border-radius: 50%;
-  width: 35px; height: 35px;
-  font-size: 20px; font-weight: bold;
-  display: flex; justify-content: center; align-items: center;
-  &:hover { background-color: #ffb74d; }
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &:hover {
+    background-color: #ffb74d;
+  }
 `;
 
 const ProfileContent = styled.div`
@@ -99,7 +114,7 @@ const AddFriendButton = styled.button`
   background-color: #fcae4f;
   border: 2px solid #e5932a;
   border-radius: 5px;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   font-size: 1.2rem;
   color: #5d4037;
 
@@ -113,21 +128,30 @@ const AddFriendButton = styled.button`
 `;
 
 const PlayerProfileModal = ({ player, onClose }) => {
-  const { friends, addFriend } = useUserStore();
-  const [notification, setNotification] = useState('');
+  const { friends, addFriendAsync, fetchFriends } = useUserStore();
+  const [notification, setNotification] = useState("");
 
-  const isAlreadyFriend = player && friends.some(friend => friend.id === player.id);
+  const isAlreadyFriend =
+    player && friends.some((friend) => friend.id === player.id);
 
-  const handleAddFriend = () => {
+  const handleAddFriend = useCallback(async () => {
     if (!player) return;
-    addFriend(player);
-    setNotification(`${player.name}님을 친구로 추가했습니다.`);
-  };
-  
+    // 실제 API 연동
+    const result = await addFriendAsync(player.id || player.userId);
+    if (result.success) {
+      setNotification(
+        `${player.name || player.nickname}님을 친구로 추가했습니다.`
+      );
+      fetchFriends();
+    } else {
+      setNotification("친구 추가 실패");
+    }
+  }, [player, addFriendAsync, fetchFriends]);
+
   const handleCloseNotification = () => {
-    setNotification('');
+    setNotification("");
     onClose();
-  }
+  };
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -146,8 +170,11 @@ const PlayerProfileModal = ({ player, onClose }) => {
                 <PlayerStats>자산: {player.cash.toLocaleString()}G</PlayerStats>
               </PlayerInfo>
             </ProfileContent>
-            <AddFriendButton onClick={handleAddFriend} disabled={isAlreadyFriend}>
-              {isAlreadyFriend ? '이미 친구입니다' : '친구 추가'}
+            <AddFriendButton
+              onClick={handleAddFriend}
+              disabled={isAlreadyFriend}
+            >
+              {isAlreadyFriend ? "이미 친구입니다" : "친구 추가"}
             </AddFriendButton>
           </>
         ) : (
@@ -166,4 +193,4 @@ const PlayerProfileModal = ({ player, onClose }) => {
   );
 };
 
-export default PlayerProfileModal; 
+export default PlayerProfileModal;

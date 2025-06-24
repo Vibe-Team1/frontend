@@ -13,7 +13,7 @@ import MyPageModal from "../myPage/MyPageModal";
 import MyStocksModal from "../myStocks/MyStocksModal";
 import MyFriendsModal from "../friends/MyFriendsModal";
 import ShopModal from "../shop/ShopModal";
-import mainBackground from "../../assets/snow-background.jpeg";
+// import mainBackground from "../../assets/main-background5.jpeg";
 import PlayerCharacter from "./PlayerCharacter";
 import addFriendIconUrl from "../../assets/addFriend.png";
 import stockIconUrl from "../../assets/stockIcon.png";
@@ -74,6 +74,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const navigate = useNavigate();
   const [activeModal, setActiveModal] = useState(null);
   const { initializeData, isLoading, error } = useUserStore();
+  const setGameDate = useUserStore((state) => state.updateGameDate);
 
   // 앱 시작 시 백엔드에서 데이터 불러오기
   useEffect(() => {
@@ -87,6 +88,12 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
 
     loadInitialData();
   }, [initializeData]);
+
+  // 앱 시작 시 항상 오늘 날짜로 gameDate를 덮어쓰기
+  useEffect(() => {
+    const today = new Date();
+    setGameDate(today.getFullYear(), today.getMonth() + 1, today.getDate());
+  }, [setGameDate]);
 
   const handleOpenTradeModal = () => setIsTradeModalOpen(true);
   const handleCloseTradeModal = () => setIsTradeModalOpen(false);

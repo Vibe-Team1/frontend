@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import useUserStore from '../../store/useUserStore';
+import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
 
 // TODO: 이 경로에 실제 프로필 사진 파일을 넣어주세요. 예: /src/assets/profile-pic.png
 // const profilePicUrl = '/src/assets/stockIcon/005930.png';
@@ -48,8 +48,9 @@ const ProfileName = styled.p`
 `;
 
 const Profile = () => {
-  const { name, avatar } = useUserStore((state) => state.user);
-
+    const { user } = useUserStore();
+    const name = user?.nickname || "닉네임 없음";
+    const avatar = user?.avatar || "/characters/1001.gif";
   return (
     <ProfileContainer>
       <AvatarContainer>
@@ -60,4 +61,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

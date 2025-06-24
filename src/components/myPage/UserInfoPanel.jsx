@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import useUserStore from '../../store/useUserStore';
-import { useState, useEffect } from 'react';
+import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import { useState, useEffect } from "react";
 
 const PanelContainer = styled.div`
   width: 350px;
@@ -63,22 +63,23 @@ const EditButton = styled.button`
 `;
 
 const EquippedItems = styled.div`
-    width: 100%;
-    border: 3px solid #d8c8b0;
-    border-radius: 10px;
-    padding: 10px;
+  width: 100%;
+  border: 3px solid #d8c8b0;
+  border-radius: 10px;
+  padding: 10px;
 `;
 
 const EquippedItemsGrid = styled.div`
-    display: flex;
-    justify-content: space-around;
-    margin-top: 10px;
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
 `;
 
 const EquippedItemSlot = styled.div`
-    width: 60px; height: 60px;
-    background-color: #eee;
-    border-radius: 5px;
+  width: 60px;
+  height: 60px;
+  background-color: #eee;
+  border-radius: 5px;
 `;
 
 const ButtonGroup = styled.div`
@@ -108,57 +109,102 @@ const ActionButton = styled.button`
 `;
 
 const UserInfoPanel = () => {
-  const { user, updateUsername } = useUserStore();
+  const { user, updateMeInStore } = useUserStore();
   const [isEditingName, setIsEditingName] = useState(false);
-  const [editName, setEditName] = useState(user.name);
+  const [editName, setEditName] = useState(user?.nickname || "");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setEditName(user.name);
-  }, [user.name]);
+    setEditName(user?.nickname || "");
+  }, [user?.nickname]);
 
-  const handleNameEdit = () => {
+  const handleNameEdit = async () => {
     if (isEditingName) {
-      updateUsername(editName);
-      setIsEditingName(false);
+      // 저장 버튼 클릭 시 PATCH
+      if (!editName.trim()) {
+        setError("닉네임을 입력하세요");
+        return;
+      }
+      setLoading(true);
+      setError("");
+      const result = await updateMeInStore({ nickname: editName });
+      setLoading(false);
+      if (result.success) {
+        setIsEditingName(false);
+      } else {
+        setError("닉네임 변경 실패");
+      }
     } else {
       setIsEditingName(true);
     }
   };
 
+  // 가입일(생성일) yyyy-mm-dd만 추출
+  let createdDate = "-";
+  if (
+    user?.createdAt &&
+    typeof user.createdAt === "string" &&
+    user.createdAt.length >= 10
+  ) {
+    createdDate = user.createdAt.slice(0, 10);
+  }
+  const avatar = user?.avatar || "/characters/1001.gif";
+
+  // 대표 이미지 클릭 시 캐릭터/의상 변경 연동 (예: 커스터마이즈 패널 열기)
+  const handleAvatarClick = () => {
+    // TODO: 커스터마이즈 패널 연동 또는 이미지 변경 모달 오픈
+    // ex) setShowCustomization(true)
+  };
+
   return (
     <PanelContainer>
-      <AvatarContainer>
-        <AvatarImage src={user.avatar} alt={user.name} />
+      <AvatarContainer
+        onClick={handleAvatarClick}
+        style={{ cursor: "pointer" }}
+      >
+        <AvatarImage src={avatar} alt={user?.nickname || "닉네임 없음"} />
       </AvatarContainer>
       <InfoSection>
         <InfoRow>
-          <Label>닉네임</Label> 
+          <Label>닉네임</Label>
           {isEditingName ? (
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              style={{ 
-                border: '1px solid #ccc', 
-                padding: '2px 5px', 
-                borderRadius: '3px',
-                width: '80px'
-              }}
-            />
+            <>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                style={{
+                  border: "1px solid #ccc",
+                  padding: "2px 5px",
+                  borderRadius: "3px",
+                  width: "80px",
+                }}
+                disabled={loading}
+              />
+              {loading && (
+                <span style={{ marginLeft: 4, fontSize: 12 }}>저장중...</span>
+              )}
+              {error && (
+                <span style={{ color: "red", fontSize: 12, marginLeft: 4 }}>
+                  {error}
+                </span>
+              )}
+            </>
           ) : (
-            <Value>{user.name}</Value>
+            <Value>{user?.nickname || "닉네임 없음"}</Value>
           )}
-          <EditButton onClick={handleNameEdit}>
-            {isEditingName ? '저장' : '수정'}
+          <EditButton onClick={handleNameEdit} disabled={loading}>
+            {isEditingName ? "저장" : "수정"}
           </EditButton>
         </InfoRow>
         <InfoRow>
-          <Label>가입일</Label> 
-          <Value>{user.joinDate}</Value>
+          <Label>가입일</Label>
+          <Value>{createdDate}</Value>
         </InfoRow>
       </InfoSection>
     </PanelContainer>
   );
 };
 
-export default UserInfoPanel; 
+export default UserInfoPanel;

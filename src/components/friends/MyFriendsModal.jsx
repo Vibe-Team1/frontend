@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
-import useUserStore from '../../store/useUserStore';
-import FriendCard from './FriendCard';
-import PlayerProfileModal from './PlayerProfileModal';
-import NotificationModal from '../common/NotificationModal';
+import { useState, useEffect, useCallback } from "react";
+import styled, { keyframes } from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import FriendCard from "./FriendCard";
+import PlayerProfileModal from "./PlayerProfileModal";
+import NotificationModal from "../common/NotificationModal";
 
 const scaleUp = keyframes`
   from {
@@ -17,17 +17,29 @@ const scaleUp = keyframes`
 `;
 
 const ModalOverlay = styled.div`
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
-  display: flex; justify-content: center; align-items: center; z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 `;
 
 const ModalContainer = styled.div`
-  width: 90%; max-width: 1200px; height: 85%;
+  width: 90%;
+  max-width: 1200px;
+  height: 85%;
   background-color: #f3e9d3;
-  border: 10px solid #4a2e2a; border-radius: 15px;
+  border: 10px solid #4a2e2a;
+  border-radius: 15px;
   box-shadow: inset 0 0 0 5px #8d6e63;
-  padding: 25px; box-sizing: border-box; position: relative;
+  padding: 25px;
+  box-sizing: border-box;
+  position: relative;
   font-family: sans-serif;
   color: #5d4037;
   display: flex;
@@ -45,12 +57,24 @@ const Title = styled.h2`
 `;
 
 const CloseButton = styled.button`
-  position: absolute; top: 15px; right: 15px;
-  background-color: #ffab40; color: #5d4037;
-  border: 3px solid #c62828; border-radius: 50%;
-  width: 40px; height: 40px; font-size: 24px; font-weight: bold;
-  display: flex; justify-content: center; align-items: center; z-index: 10;
-  &:hover { background-color: #ffb74d; }
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #ffab40;
+  color: #5d4037;
+  border: 3px solid #c62828;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  &:hover {
+    background-color: #ffb74d;
+  }
 `;
 
 const SearchContainer = styled.div`
@@ -97,32 +121,81 @@ const FriendList = styled.div`
 
 // Dummy data for all players in the "game"
 const allPlayers = [
-    { id: 1, name: '주식왕초보', profitRate: 15.78, cash: 1250000, avatarUrl: '/characters/101.gif' },
-    { id: 2, name: '주식고수', avatarUrl: '/characters/102.gif', profitRate: 150, cash: 2500000 },
-    { id: 3, name: '타짜', avatarUrl: '/characters/103.gif', profitRate: 200, cash: 5000000 },
-    { id: 4, name: '상한가헌터', avatarUrl: '/characters/104.gif', profitRate: 300, cash: 10000000 },
-    { id: 5, name: '기관', avatarUrl: '/characters/105.gif', profitRate: 500, cash: 100000000 },
-    { id: 6, name: '외인', avatarUrl: '/characters/106.gif', profitRate: 1000, cash: 1000000000 },
+  {
+    id: 1,
+    name: "주식왕초보",
+    profitRate: 15.78,
+    cash: 1250000,
+    avatarUrl: "/characters/101.gif",
+  },
+  {
+    id: 2,
+    name: "주식고수",
+    avatarUrl: "/characters/102.gif",
+    profitRate: 150,
+    cash: 2500000,
+  },
+  {
+    id: 3,
+    name: "타짜",
+    avatarUrl: "/characters/103.gif",
+    profitRate: 200,
+    cash: 5000000,
+  },
+  {
+    id: 4,
+    name: "상한가헌터",
+    avatarUrl: "/characters/104.gif",
+    profitRate: 300,
+    cash: 10000000,
+  },
+  {
+    id: 5,
+    name: "기관",
+    avatarUrl: "/characters/105.gif",
+    profitRate: 500,
+    cash: 100000000,
+  },
+  {
+    id: 6,
+    name: "외인",
+    avatarUrl: "/characters/106.gif",
+    profitRate: 1000,
+    cash: 1000000000,
+  },
 ];
 
 const MyFriendsModal = ({ onClose }) => {
   const friends = useUserStore((state) => state.friends);
-  const [searchQuery, setSearchQuery] = useState('');
+  const fetchFriends = useUserStore((state) => state.fetchFriends);
+  // TODO: 전체 유저 목록 불러오기 (추후 구현)
+  // const allUsers = useUserStore((state) => state.allUsers);
+  // const fetchAllUsers = useUserStore((state) => state.fetchAllUsers);
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [notification, setNotification] = useState('');
+  const [notification, setNotification] = useState("");
 
-  const handleSearch = () => {
+  useEffect(() => {
+    fetchFriends();
+    // fetchAllUsers && fetchAllUsers();
+  }, [fetchFriends]);
+
+  // TODO: 실제 전체 유저 목록에서 검색하도록 리팩토링 필요
+  const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) {
-        setNotification('검색할 플레이어 이름을 입력하세요.');
-        return;
+      setNotification("검색할 플레이어 이름을 입력하세요.");
+      return;
     }
-    const searchRegex = new RegExp(searchQuery, 'i'); // 'i' for case-insensitive
-    const foundPlayer = allPlayers.find(p => searchRegex.test(p.name));
-    
+    // const foundPlayer = allUsers.find(p => p.nickname && new RegExp(searchQuery, 'i').test(p.nickname));
+    // setSearchResult(foundPlayer);
+    // setIsProfileModalOpen(true);
+    // 임시: 기존 더미 데이터로 유지
+    const searchRegex = new RegExp(searchQuery, "i");
+    const foundPlayer = allPlayers.find((p) => searchRegex.test(p.name));
     setSearchResult(foundPlayer);
     setIsProfileModalOpen(true);
-  };
+  }, [searchQuery]);
 
   const handleCloseProfileModal = () => {
     setIsProfileModalOpen(false);
@@ -135,37 +208,37 @@ const MyFriendsModal = ({ onClose }) => {
           <CloseButton onClick={onClose}>&times;</CloseButton>
           <Title>내 친구</Title>
           <SearchContainer>
-            <SearchInput 
+            <SearchInput
               type="text"
               placeholder="플레이어 이름 검색..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
             />
             <SearchButton onClick={handleSearch}>검색</SearchButton>
           </SearchContainer>
           <FriendList>
-              {friends.map(friend => (
-                  <FriendCard key={friend.id} friend={friend} />
-              ))}
+            {friends.map((friend) => (
+              <FriendCard key={friend.id} friend={friend} />
+            ))}
           </FriendList>
         </ModalContainer>
       </ModalOverlay>
 
       {isProfileModalOpen && (
-        <PlayerProfileModal 
-            player={searchResult} 
-            onClose={handleCloseProfileModal} 
+        <PlayerProfileModal
+          player={searchResult}
+          onClose={handleCloseProfileModal}
         />
       )}
       {notification && (
-          <NotificationModal
-            message={notification}
-            onClose={() => setNotification('')}
-          />
+        <NotificationModal
+          message={notification}
+          onClose={() => setNotification("")}
+        />
       )}
     </>
   );
 };
 
-export default MyFriendsModal; 
+export default MyFriendsModal;
