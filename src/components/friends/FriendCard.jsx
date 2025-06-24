@@ -87,12 +87,11 @@ const ActionButton = styled.button`
 `;
 
 const FriendCard = ({ friend }) => {
-  const { name, nickname, profitRate, cash, avatarUrl } = friend;
+  const { name, nickname, characterCount, cash, avatarUrl } = friend;
   const displayName = name || nickname || "알 수 없음";
-  const displayProfitRate = profitRate || 0;
+  const displayCharacterCount = characterCount || 0;
   const displayCash = cash || 0;
   const displayAvatar = avatarUrl || "/characters/101.gif";
-  const profitColor = displayProfitRate >= 0 ? "#0D47A1" : "#D32F2F";
 
   return (
     <CardContainer>
@@ -103,8 +102,8 @@ const FriendCard = ({ friend }) => {
         <InfoSection>
           <FriendName>{displayName}</FriendName>
           <InfoRow>
-            <Label>수익률</Label>
-            <Value color={profitColor}>{displayProfitRate.toFixed(2)}%</Value>
+            <Label>보유 캐릭터</Label>
+            <Value>{displayCharacterCount}개</Value>
           </InfoRow>
           <InfoRow>
             <Label>보유 현금</Label>

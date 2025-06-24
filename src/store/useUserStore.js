@@ -12,6 +12,9 @@ import {
   getFriends,
   addFriend,
   getAllUsers,
+  getCustomization,
+  selectCustomization,
+  searchUsers,
 } from "../api/accountApi";
 
 const today = new Date();
@@ -80,17 +83,25 @@ const useUserStore = create(
       },
       // 현재 선택된 테마 정보
       selectedTheme: {
-        background: null, // MainPage에서 기본 배경을 사용
+        background: "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png", // 기본 배경을 S3 URL로 설정
       },
+      // 커스터마이제이션 데이터
+      customization: {
+        backgrounds: [],
+        characters: [],
+        backgroundUrls: [],
+        characterUrls: [],
+      },
+      // 보유 캐릭터 정보 (로컬 스토리지에 저장)
+      ownedCharacters: [],
+      setOwnedCharacters: (characters) => set({ ownedCharacters: characters }),
       // 캐릭터 변경 함수
       updateSelectedCharacter: (characterCode) =>
         set((state) => ({
           selectedCharacter: { ...state.selectedCharacter, characterCode },
           user: {
             ...state.user,
-            avatar: `/characters/${characterCode}${state.selectedCharacter.costumeCode
-              .toString()
-              .padStart(2, "0")}.gif`,
+            avatar: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode.toString().padStart(3, '0')}.gif`,
           },
         })),
       // 의상 변경 함수
@@ -99,16 +110,17 @@ const useUserStore = create(
           selectedCharacter: { ...state.selectedCharacter, costumeCode },
           user: {
             ...state.user,
-            avatar: `/characters/${
-              state.selectedCharacter.characterCode
-            }${costumeCode.toString().padStart(2, "0")}.gif`,
+            avatar: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${state.selectedCharacter.characterCode.toString().padStart(3, '0')}.gif`,
           },
         })),
       // 테마 변경 함수
-      updateSelectedTheme: (background) =>
+      updateSelectedTheme: (backgroundCode) => {
+        const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${backgroundCode}.png`;
+        localStorage.setItem('currentBackgroundCode', backgroundCode);
         set((state) => ({
           selectedTheme: { ...state.selectedTheme, background },
-        })),
+        }));
+      },
 
       // Vehicle
       vehicleLevel: 0, // 0: 손수레, 1: 자전거, ...
@@ -156,6 +168,20 @@ const useUserStore = create(
             stocks: newStocks,
           },
         })),
+      setAcorn: (newAcorn) => {
+        set((state) => ({
+          assets: {
+            ...state.assets,
+            acorn: newAcorn,
+          },
+        }));
+        // localStorage에도 동기화
+        const userStorage = JSON.parse(localStorage.getItem('user-storage'));
+        if (userStorage && userStorage.state && userStorage.state.assets) {
+          userStorage.state.assets.acorn = newAcorn;
+          localStorage.setItem('user-storage', JSON.stringify(userStorage));
+        }
+      },
 
       // Friends
       friends: [],
@@ -300,11 +326,76 @@ const useUserStore = create(
         try {
           const response = await getMe();
           const userData = response.data.data;
-          const avatar = "/characters/101.gif";
-          set({ user: { ...userData, avatar } });
+          const currentCharacterCode = userData.profile?.currentCharacterCode || "001";
+          const currentBackgroundCode = userData.profile?.currentBackgroundCode || "01";
+          const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
+          const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${currentBackgroundCode}.png`;
+          set({ 
+            user: { ...userData, avatar },
+            selectedCharacter: { 
+              characterCode: parseInt(currentCharacterCode), 
+              costumeCode: 1 
+            },
+            selectedTheme: {
+              background: background
+            }
+          });
+          
+          // currentCharacterCode와 currentBackgroundCode를 로컬 스토리지에 저장
+          localStorage.setItem('currentCharacterCode', currentCharacterCode);
+          localStorage.setItem('currentBackgroundCode', currentBackgroundCode);
         } catch (error) {
           console.error("유저 정보 조회 실패:", error);
           set({ user: null });
+        }
+      },
+
+      // 커스터마이제이션 데이터 불러오기
+      fetchCustomization: async () => {
+        try {
+          const response = await getCustomization();
+          const customizationData = response.data.data;
+          set({ customization: customizationData });
+          
+          // 보유 캐릭터 정보를 로컬 스토리지에 저장
+          const ownedChars = customizationData.characters || [];
+          set({ ownedCharacters: ownedChars });
+        } catch (error) {
+          console.error("커스터마이제이션 데이터 조회 실패:", error);
+        }
+      },
+
+      // 캐릭터 및 테마 선택 API 호출
+      selectCustomizationAsync: async (backgroundCode, characterCode) => {
+        try {
+          await selectCustomization({
+            backgroundCode,
+            characterCode
+          });
+          
+          // 성공 시 로컬 상태 업데이트
+          const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${backgroundCode}.png`;
+          const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode}.gif`;
+          
+          set((state) => ({
+            user: { ...state.user, avatar },
+            selectedCharacter: { 
+              characterCode: parseInt(characterCode), 
+              costumeCode: 1 
+            },
+            selectedTheme: {
+              background: background
+            }
+          }));
+          
+          // 로컬 스토리지 업데이트
+          localStorage.setItem('currentCharacterCode', characterCode);
+          localStorage.setItem('currentBackgroundCode', backgroundCode);
+          
+          return { success: true };
+        } catch (error) {
+          console.error("커스터마이제이션 선택 실패:", error);
+          return { success: false, error: error.response?.data?.message || "선택에 실패했습니다." };
         }
       },
 
@@ -313,6 +404,7 @@ const useUserStore = create(
         await get().fetchAccountInfo();
         await get().fetchUserStocks();
         await get().fetchPortfolio();
+        await get().fetchCustomization();
       },
 
       // 에러 초기화
@@ -346,8 +438,10 @@ const useUserStore = create(
             cash: 0, // 기본값
           }));
           set({ friends: formattedFriends });
+          return formattedFriends;
         } catch (error) {
           console.error("친구 목록 불러오기 실패:", error);
+          return [];
         }
       },
 
@@ -391,6 +485,20 @@ const useUserStore = create(
           set({ users: formattedUsers });
         } catch (error) {
           console.error("전체 사용자 목록 조회 실패:", error);
+        }
+      },
+
+      // 사용자 검색 API 호출
+      searchUsersAsync: async (nickname) => {
+        try {
+          const response = await searchUsers({ nickname });
+          return { success: true, data: response.data };
+        } catch (error) {
+          console.error("사용자 검색 실패:", error);
+          return { 
+            success: false, 
+            error: error.response?.data?.error?.message || "검색에 실패했습니다." 
+          };
         }
       },
     }),

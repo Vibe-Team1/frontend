@@ -53,3 +53,7 @@ export const testAuthLogin = (data) =>
 
 // 홈
 export const getHome = () => api.get("/");
+
+// 커스터마이제이션 관련
+export const getCustomization = () => api.get("/api/v1/user/customization");
+export const selectCustomization = (data) => api.patch("/api/v1/user/customization/select", data);

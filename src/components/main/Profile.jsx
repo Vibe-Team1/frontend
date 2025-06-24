@@ -50,7 +50,8 @@ const ProfileName = styled.p`
 const Profile = () => {
     const { user } = useUserStore();
     const name = user?.nickname || "닉네임 없음";
-    const avatar = user?.avatar || "/characters/1001.gif";
+    const currentCharacterCode = user?.profile?.currentCharacterCode || localStorage.getItem('currentCharacterCode') || "001";
+    const avatar = user?.avatar || `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
   return (
     <ProfileContainer>
       <AvatarContainer>

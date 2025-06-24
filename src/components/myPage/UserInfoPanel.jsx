@@ -52,7 +52,10 @@ const Label = styled.span`
   color: #8d6e63;
 `;
 
-const Value = styled.span``;
+const Value = styled.span`
+  font-weight: normal;
+  color: #5d4037;
+`;
 
 const EditButton = styled.button`
   border: 2px solid #ffab40;
@@ -60,6 +63,7 @@ const EditButton = styled.button`
   color: #5d4037;
   padding: 5px 10px;
   border-radius: 5px;
+  font-weight: normal;
 `;
 
 const EquippedItems = styled.div`
@@ -140,16 +144,20 @@ const UserInfoPanel = () => {
     }
   };
 
-  // 가입일(생성일) yyyy-mm-dd만 추출
+  // 가입일(생성일) 형식 변환
   let createdDate = "-";
-  if (
-    user?.createdAt &&
-    typeof user.createdAt === "string" &&
-    user.createdAt.length >= 10
-  ) {
-    createdDate = user.createdAt.slice(0, 10);
+  if (user?.createdAt) {
+    if (Array.isArray(user.createdAt) && user.createdAt.length >= 3) {
+      // 배열 형식: [2025, 6, 24, 4, 52, 25, 3984000]
+      const [year, month, day] = user.createdAt;
+      createdDate = `${year}.${month.toString().padStart(2, '0')}.${day.toString().padStart(2, '0')}`;
+    } else if (typeof user.createdAt === "string" && user.createdAt.length >= 10) {
+      // 문자열 형식: "2025-06-24T04:52:25.003984Z"
+      createdDate = user.createdAt.slice(0, 10).replace(/-/g, '.');
+    }
   }
-  const avatar = user?.avatar || "/characters/1001.gif";
+  const currentCharacterCode = user?.profile?.currentCharacterCode || localStorage.getItem('currentCharacterCode') || "001";
+  const avatar = user?.avatar || `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
 
   // 대표 이미지 클릭 시 캐릭터/의상 변경 연동 (예: 커스터마이즈 패널 열기)
   const handleAvatarClick = () => {
