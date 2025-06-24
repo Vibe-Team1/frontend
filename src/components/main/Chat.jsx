@@ -22,7 +22,6 @@ const ChatContainer = styled.div`
 const ChatHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin: 0 0 10px 0;
   padding-bottom: 10px;
   border-bottom: 2px dashed #c9b79c;
@@ -34,6 +33,7 @@ const HeaderTitle = styled.h4`
 `;
 
 const ViewAllButton = styled.button`
+  margin-left: 16px;
   background-color: #8d6e63;
   color: white;
   border: 2px solid #5d4037;
