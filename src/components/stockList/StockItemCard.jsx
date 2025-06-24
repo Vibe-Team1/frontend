@@ -6,40 +6,43 @@ import useStockStore from "../../store/useStockStore";
 const CardContainer = styled.div`
   background-color: #e8dcc5;
   border: 2px solid #c9b79c;
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 1 1 calc(50% - 10px);
+  gap: 20px;
+  flex: 1 1 calc(50% - 20px);
   box-sizing: border-box;
   font-family: monospace;
   position: relative;
+  min-width: 380px;
+  min-height: 220px;
+  font-size: 1.15rem;
 `;
 
 const TopSection = styled.div`
   background-color: #d8c8b0;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 8px 12px;
+  border-radius: 8px;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: #5d4037;
   font-weight: bold;
 `;
 
 const MainContent = styled.div`
   display: flex;
-  gap: 15px;
+  gap: 24px;
 `;
 
 const ItemImage = styled.div`
-  width: 80px;
-  height: 80px;
+  width: 110px;
+  height: 110px;
   background-image: url(${(props) => props.imageUrl});
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  border-radius: 5px;
+  border-radius: 8px;
   flex-shrink: 0;
   align-self: center;
 `;
@@ -48,8 +51,8 @@ const DetailsContainer = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 14px;
+  font-size: 1.1rem;
   color: #6d5b4f;
 `;
 
@@ -144,12 +147,13 @@ const TotalPrice = styled.div`
 
 const ActionButtons = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 15px;
 `;
 
 const ActionButton = styled(QuantityButton)`
   flex-grow: 1;
   padding: 8px;
+  font-size: 1.1rem;
   background-color: #ffab40;
 `;
 
@@ -211,7 +215,7 @@ const StockItemCard = ({ item, onCartChange, mode }) => {
             <span>전일 대비</span>
             <PriceChange isPositive={changeAmount > 0}>
               {changeAmount > 0 ? "+" : ""}
-              {changeAmount.toLocaleString()}G ({changeRate > 0 ? "+" : ""}
+              {changeAmount.toLocaleString()}원 ({changeRate > 0 ? "+" : ""}
               {(changeRate || 0).toFixed(2)}%)
             </PriceChange>
           </InfoRow>
@@ -219,13 +223,13 @@ const StockItemCard = ({ item, onCartChange, mode }) => {
             <span>나의 평균 구매가</span>
             <span>
               {ownedStock
-                ? `${ownedStock.avgBuyPrice.toLocaleString()}G`
+                ? `${ownedStock.avgBuyPrice.toLocaleString()}원`
                 : "미구매"}
             </span>
           </InfoRow>
           <InfoRow>
             <span>주당</span>
-            <span>{currentPrice.toLocaleString()}G</span>
+            <span>{currentPrice.toLocaleString()}원</span>
           </InfoRow>
         </DetailsContainer>
       </MainContent>
@@ -255,7 +259,7 @@ const StockItemCard = ({ item, onCartChange, mode }) => {
             최대
           </ActionButton>
           <TotalPrice>
-            {(quantity * currentPrice).toLocaleString()} (G)
+            {(quantity * currentPrice).toLocaleString()} (원)
           </TotalPrice>
         </ActionButtons>
       </BottomControls>

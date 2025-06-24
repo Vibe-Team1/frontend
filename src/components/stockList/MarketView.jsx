@@ -71,7 +71,7 @@ const TableHeader = styled.div`
   border-bottom: 2px solid #d8c8b0;
   font-size: 1.1rem;
   & > span:first-child {
-    text-align: center;
+    text-align: left;
   }
 `;
 
@@ -104,8 +104,9 @@ const TableRow = styled.div`
 const ItemCell = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 15px;
+  padding-left: 20px;
 
   & > span {
     font-weight: bold;
@@ -153,21 +154,14 @@ const MarketView = () => {
   return (
     <ViewContainer>
       <Header>
-        <Title>오늘의 시세</Title>
-        <ButtonGroup>
-          <ConnectionStatus isConnected={isConnected}>
-            {isConnected ? "실시간 연결됨" : connectionStatus}
-          </ConnectionStatus>
-          <FilterButton>내 것만 보기</FilterButton>
-          <FilterButton>초기화</FilterButton>
-        </ButtonGroup>
+        <title>오늘의 시세</title>
       </Header>
       <Table>
         <TableHeader>
-          <span>작물</span>
-          <span>개당 가격(G)</span>
+          <span>주식 종목</span>
+          <span>주당 가격(원)</span>
           <span>보유개수</span>
-          <span>등락폭(G)</span>
+          <span>등락폭(원)</span>
         </TableHeader>
         <TableBody>
           {stockItems.length > 0 ? (
