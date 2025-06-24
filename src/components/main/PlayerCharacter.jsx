@@ -119,7 +119,7 @@ const PlayerCharacter = () => {
       </CharacterContainer> */}
       
       {/* 보유한 모든 캐릭터들 */}
-      {customization.characterUrls && customization.characterUrls.map((characterUrl, index) => (
+      {customization.characterUrls && customization.characterUrls.slice(-5).map((characterUrl, index) => (
         <Character 
           key={`character-${index}`} 
           characterUrl={characterUrl} 

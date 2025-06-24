@@ -4,6 +4,7 @@ import LandingPage from "./components/landing/LandingPage";
 import MainPage from "./components/main/MainPage";
 import WebSocketProvider from "./components/common/WebSocketProvider";
 import bgm from "./assets/bgm.mp3";
+import OAuthSuccess from "./components/landing/OAuthSuccess";
 
 function App() {
   const audioRef = useRef(null);
@@ -79,6 +80,7 @@ function App() {
                 />
               }
             />
+            <Route path="/oauth-success" element={<OAuthSuccess />} />
           </Routes>
         </BrowserRouter>
       </WebSocketProvider>

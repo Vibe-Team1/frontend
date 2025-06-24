@@ -39,12 +39,14 @@ const TabButton = styled.button`
 `;
 
 const ItemGrid = styled.div`
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    overflow-y: auto;
-    padding: 5px;
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  overflow-y: auto;
+  padding: 5px;
+  align-content: start;
+  grid-auto-rows: 180px;
 `;
 
 const ItemSlot = styled.div`
@@ -101,7 +103,7 @@ const ApplyButton = styled.button`
 // 120개의 캐릭터 코드 생성 (001, 002, ..., 120)
 const generateCharacterCodes = () => {
   const codes = [];
-  for (let i = 1; i <= 120; i++) {
+  for (let i = 1; i <= 180; i++) {
     codes.push(i.toString().padStart(3, '0'));
   }
   return codes;

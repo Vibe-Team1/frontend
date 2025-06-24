@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import acornImg from '../../assets/acorn.png';
 
 const Card = styled.div`
   width: 100%;
@@ -53,11 +52,8 @@ const ItemDescription = styled.p`
 `;
 
 const ItemPrice = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 `;
 
 const QuantityControl = styled.div`
@@ -105,14 +101,7 @@ const ShopItemCard = ({ item, onCartChange, maxQuantity, disabled, disablePlus }
       </IconContainer>
       <ItemName>{item.name}</ItemName>
       <ItemDescription>{item.description}</ItemDescription>
-      <ItemPrice>
-        {item.price.toLocaleString()}
-        {['normal_ticket', 'rare_ticket', 'legend_ticket'].includes(item.id) ? (
-          <img src={acornImg} alt="도토리" style={{ height: '1.5em', width: 'auto', verticalAlign: 'middle', marginLeft: 2 }} />
-        ) : (
-          <span style={{fontSize: '1rem', marginLeft: 2}}>G</span>
-        )}
-      </ItemPrice>
+      <ItemPrice>{item.price.toLocaleString()} G</ItemPrice>
 
       <QuantityControl>
         <QuantityButton onClick={() => handleQuantityChange(-1)}>-</QuantityButton>

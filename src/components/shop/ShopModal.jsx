@@ -191,8 +191,8 @@ const ShopModal = ({ onClose }) => {
     key.startsWith("random_")
   );
 
-  const { cash } = useUserStore((state) => state.assets);
-  const { inventory, updateCash, setInventory } = useUserStore();
+  const { cash, acorn } = useUserStore((state) => state.assets);
+  const { inventory, updateCash, setInventory, setAcorn } = useUserStore();
 
   const handleCartChange = (item, quantity) => {
     const isGachaItem = item.id.startsWith("random_");
@@ -253,30 +253,43 @@ const ShopModal = ({ onClose }) => {
     // 티켓 뽑기 로직
     if (isTicket) {
       let type = "";
-      if (purchasedItem.id === "normal_ticket") type = "normal";
-      else if (purchasedItem.id === "rare_ticket") type = "rare";
-      else if (purchasedItem.id === "legend_ticket") type = "legend";
+      let acornCost = 0;
+      if (purchasedItem.id === "normal_ticket") { type = "NORMAL"; acornCost = 5; }
+      else if (purchasedItem.id === "rare_ticket") { type = "PREMIUM"; acornCost = 10; }
+      else if (purchasedItem.id === "legend_ticket") { type = "SUPREME"; acornCost = 20; }
       try {
+        // 도토리 차감
+        if (acorn < acornCost) {
+          setNotification("도토리가 부족합니다!");
+          return;
+        }
+        setAcorn(acorn - acornCost);
+        // localStorage에도 직접 반영(혹시 zustand 미동기화 대비)
+        const userStorage = JSON.parse(localStorage.getItem('user-storage'));
+        if (userStorage && userStorage.state && userStorage.state.assets) {
+          userStorage.state.assets.acorn = acorn - acornCost;
+          localStorage.setItem('user-storage', JSON.stringify(userStorage));
+        }
         const res = await shopDraw({ type });
         if (res.data && res.data.success) {
           const { characterCode, isNew } = res.data.data;
           // 캐릭터 코드 범위 체크 및 알림
           let valid = false;
           if (
-            type === "normal" &&
+            type === "NORMAL" &&
             Number(characterCode) >= 1 &&
-            Number(characterCode) <= 60
-          )
-            valid = true;
-          if (
-            type === "rare" &&
-            Number(characterCode) >= 61 &&
             Number(characterCode) <= 120
           )
             valid = true;
           if (
-            type === "legend" &&
+            type === "PREMIUM" &&
             Number(characterCode) >= 121 &&
+            Number(characterCode) <= 180
+          )
+            valid = true;
+          if (
+            type === "SUPREME" &&
+            Number(characterCode) >= 151 &&
             Number(characterCode) <= 180
           )
             valid = true;
@@ -284,13 +297,20 @@ const ShopModal = ({ onClose }) => {
             setNotification(
               "잘못된 캐릭터 코드가 뽑혔습니다: " + characterCode
             );
+            setIsConfirmOpen(false);
           } else {
-            setGachaResult({
+            const reward = {
               name: `캐릭터 ${characterCode}`,
-              icon: `/characters/${characterCode}01.gif`,
+              icon: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode}.gif`,
               code: characterCode,
               isNew,
-            });
+            };
+            console.log('setGachaResult 호출:', reward);
+            setGachaResult(reward);
+            console.log('setGachaResult 완료:', reward);
+            setIsConfirmOpen(false);
+            setCart({});
+            setResetKey((prev) => prev + 1);
           }
         } else {
           setNotification(res.data?.error?.message || "뽑기 실패");
@@ -298,9 +318,6 @@ const ShopModal = ({ onClose }) => {
       } catch (e) {
         setNotification("뽑기 API 호출 실패");
       }
-      setCart({});
-      setResetKey((prev) => prev + 1);
-      setIsConfirmOpen(false);
       return;
     }
 
@@ -399,7 +416,7 @@ const ShopModal = ({ onClose }) => {
           onClose={handleCloseNotification}
         />
       )}
-      {gachaResult && (
+      {gachaResult !== null && (
         <GachaResultModal
           rewardItem={gachaResult}
           onClose={() => setGachaResult(null)}

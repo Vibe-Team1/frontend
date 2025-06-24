@@ -1,23 +1,25 @@
 // src/components/landing/LandingPage.jsx
 
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 
 const backgroundImage = "/landing.jpg"; // CSS에서 사용하는 경로와 일치
 const gifImage = "/characters/101.gif"; // public 폴더 기준 경로
 const title = "슬라임 키우기 안녕하세요!";
+const GOOGLE_OAUTH_URL = 'http://finland.r-e.kr:8080/oauth2/authorization/google';
 
 export default function LandingPage() {
-  const navigate = useNavigate();
-
   useEffect(() => {
-    const handleKeyDown = () => {
-      navigate("/main"); // 이동할 경로
+    const handleRedirect = () => {
+      window.location.href = GOOGLE_OAUTH_URL;
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigate]);
+    window.addEventListener('keydown', handleRedirect);
+    window.addEventListener('click', handleRedirect);
+    return () => {
+      window.removeEventListener('keydown', handleRedirect);
+      window.removeEventListener('click', handleRedirect);
+    };
+  }, []);
 
   return (
     <div className="landing-background">

@@ -168,6 +168,20 @@ const useUserStore = create(
             stocks: newStocks,
           },
         })),
+      setAcorn: (newAcorn) => {
+        set((state) => ({
+          assets: {
+            ...state.assets,
+            acorn: newAcorn,
+          },
+        }));
+        // localStorage에도 동기화
+        const userStorage = JSON.parse(localStorage.getItem('user-storage'));
+        if (userStorage && userStorage.state && userStorage.state.assets) {
+          userStorage.state.assets.acorn = newAcorn;
+          localStorage.setItem('user-storage', JSON.stringify(userStorage));
+        }
+      },
 
       // Friends
       friends: [],
