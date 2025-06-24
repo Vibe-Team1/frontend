@@ -60,6 +60,12 @@ const Message = styled.p`
   font-size: 1.2rem;
   margin: 0 0 25px 0;
   color: #6d5b4f;
+
+  &.not-found {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #5d4037;
+  }
 `;
 
 const Button = styled.button`
@@ -80,7 +86,10 @@ const Button = styled.button`
 const NotificationModal = ({ isOpen, onClose, type = 'success', title, message }) => {
   if (!isOpen) return null;
 
+  const isNotFound = message === '해당 플레이어를 찾을 수 없습니다.' || message === '해당 플레이어를 찾을 수 없습니다';
+
   const getIcon = () => {
+    if (isNotFound) return '❌';
     switch (type) {
       case 'success':
         return '✅';
@@ -96,9 +105,9 @@ const NotificationModal = ({ isOpen, onClose, type = 'success', title, message }
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <Icon type={type}>{getIcon()}</Icon>
-        <Title>{title}</Title>
-        <Message>{message}</Message>
+        <Icon type={isNotFound ? 'error' : type}>{getIcon()}</Icon>
+        {title && <Title>{title}</Title>}
+        <Message className={isNotFound ? 'not-found' : ''}>{message}</Message>
         <Button onClick={onClose}>확인</Button>
       </ModalContent>
     </ModalOverlay>

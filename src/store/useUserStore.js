@@ -14,6 +14,7 @@ import {
   getAllUsers,
   getCustomization,
   selectCustomization,
+  searchUsers,
 } from "../api/accountApi";
 
 const today = new Date();
@@ -423,8 +424,10 @@ const useUserStore = create(
             cash: 0, // 기본값
           }));
           set({ friends: formattedFriends });
+          return formattedFriends;
         } catch (error) {
           console.error("친구 목록 불러오기 실패:", error);
+          return [];
         }
       },
 
@@ -468,6 +471,20 @@ const useUserStore = create(
           set({ users: formattedUsers });
         } catch (error) {
           console.error("전체 사용자 목록 조회 실패:", error);
+        }
+      },
+
+      // 사용자 검색 API 호출
+      searchUsersAsync: async (nickname) => {
+        try {
+          const response = await searchUsers({ nickname });
+          return { success: true, data: response.data };
+        } catch (error) {
+          console.error("사용자 검색 실패:", error);
+          return { 
+            success: false, 
+            error: error.response?.data?.error?.message || "검색에 실패했습니다." 
+          };
         }
       },
     }),

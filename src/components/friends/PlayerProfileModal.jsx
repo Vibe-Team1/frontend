@@ -128,7 +128,7 @@ const AddFriendButton = styled.button`
 `;
 
 const PlayerProfileModal = ({ player, onClose }) => {
-  const { friends, addFriendAsync, fetchFriends } = useUserStore();
+  const { friends, addFriendAsync, fetchFriends, user } = useUserStore();
   const [notification, setNotification] = useState("");
 
   const isAlreadyFriend =
@@ -139,6 +139,12 @@ const PlayerProfileModal = ({ player, onClose }) => {
         friend.userId === player.userId ||
         friend.nickname === player.nickname
     );
+
+  // 나 자신인지 확인
+  const isMyself = player && user && (
+    player.userId === user.id ||
+    player.nickname === user.nickname
+  );
 
   const handleAddFriend = useCallback(async () => {
     if (!player) return;
@@ -160,7 +166,7 @@ const PlayerProfileModal = ({ player, onClose }) => {
   };
 
   const displayName = player?.name || player?.nickname || "알 수 없음";
-  const displayProfitRate = player?.profitRate || 0;
+  const displayCharacterCount = player?.characterCount || 0;
   const displayCash = player?.cash || 0;
   const displayAvatar = player?.avatarUrl || "/characters/101.gif";
 
@@ -177,15 +183,15 @@ const PlayerProfileModal = ({ player, onClose }) => {
               </AvatarContainer>
               <PlayerInfo>
                 <PlayerName>{displayName}</PlayerName>
-                <PlayerStats>수익률: {displayProfitRate}%</PlayerStats>
+                <PlayerStats>보유 캐릭터: {displayCharacterCount}개</PlayerStats>
                 <PlayerStats>자산: {displayCash.toLocaleString()}G</PlayerStats>
               </PlayerInfo>
             </ProfileContent>
             <AddFriendButton
               onClick={handleAddFriend}
-              disabled={isAlreadyFriend}
+              disabled={isAlreadyFriend || isMyself}
             >
-              {isAlreadyFriend ? "이미 친구입니다" : "친구 추가"}
+              {isMyself ? "자신은 친구로 추가할 수 없습니다" : isAlreadyFriend ? "이미 친구입니다" : "친구 추가"}
             </AddFriendButton>
           </>
         ) : (
