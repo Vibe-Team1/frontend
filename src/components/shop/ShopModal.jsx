@@ -6,6 +6,7 @@ import ReceiptComponent from "../stockList/Receipt";
 import NotificationModal from "../common/NotificationModal";
 import GachaResultModal from "./GachaResultModal";
 import ConfirmModal from "../common/ConfirmModal";
+import { shopDraw } from "../../api/accountApi";
 
 const scaleUp = keyframes`
   from {
@@ -252,7 +253,7 @@ const ShopModal = ({ onClose }) => {
     setIsConfirmOpen(true);
   };
 
-  const executePurchase = () => {
+  const executePurchase = async () => {
     let totalCost = 0;
     Object.values(cart).forEach(({ item, quantity }) => {
       totalCost += item.price * quantity;
@@ -266,31 +267,69 @@ const ShopModal = ({ onClose }) => {
     updateCash(-totalCost);
 
     const purchasedItem = Object.values(cart)[0].item;
-    const isGacha = purchasedItem.id.startsWith("random_");
     const isTicket = ticketIds.includes(purchasedItem.id);
 
-    if (isGacha) {
-      const isCharacterBox = purchasedItem.id === "random_character_box";
-      const rewardPool = isCharacterBox ? characterItems : costumeItems;
-      const randomIndex = Math.floor(Math.random() * rewardPool.length);
-      const reward = rewardPool[randomIndex];
-      setGachaResult(reward);
-    } else if (isTicket) {
-      setGachaResult(purchasedItem);
-      const newInventory = { ...inventory };
-      Object.values(cart).forEach(({ item, quantity }) => {
-        newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
-      });
-      setInventory(newInventory);
-    } else {
-      const newInventory = { ...inventory };
-      Object.values(cart).forEach(({ item, quantity }) => {
-        newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
-      });
-      setInventory(newInventory);
-      setNotification("구매가 완료되었습니다.");
+    // 티켓 뽑기 로직
+    if (isTicket) {
+      let type = "";
+      if (purchasedItem.id === "normal_ticket") type = "normal";
+      else if (purchasedItem.id === "rare_ticket") type = "rare";
+      else if (purchasedItem.id === "legend_ticket") type = "legend";
+      try {
+        const res = await shopDraw({ type });
+        if (res.data && res.data.success) {
+          const { characterCode, isNew } = res.data.data;
+          // 캐릭터 코드 범위 체크 및 알림
+          let valid = false;
+          if (
+            type === "normal" &&
+            Number(characterCode) >= 1 &&
+            Number(characterCode) <= 60
+          )
+            valid = true;
+          if (
+            type === "rare" &&
+            Number(characterCode) >= 61 &&
+            Number(characterCode) <= 120
+          )
+            valid = true;
+          if (
+            type === "legend" &&
+            Number(characterCode) >= 121 &&
+            Number(characterCode) <= 180
+          )
+            valid = true;
+          if (!valid) {
+            setNotification(
+              "잘못된 캐릭터 코드가 뽑혔습니다: " + characterCode
+            );
+          } else {
+            setGachaResult({
+              name: `캐릭터 ${characterCode}`,
+              icon: `/characters/${characterCode}01.gif`,
+              code: characterCode,
+              isNew,
+            });
+          }
+        } else {
+          setNotification(res.data?.error?.message || "뽑기 실패");
+        }
+      } catch (e) {
+        setNotification("뽑기 API 호출 실패");
+      }
+      setCart({});
+      setResetKey((prev) => prev + 1);
+      setIsConfirmOpen(false);
+      return;
     }
 
+    // 기존 아이템 구매 로직
+    const newInventory = { ...inventory };
+    Object.values(cart).forEach(({ item, quantity }) => {
+      newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
+    });
+    setInventory(newInventory);
+    setNotification("구매가 완료되었습니다.");
     setCart({});
     setResetKey((prev) => prev + 1);
     setIsConfirmOpen(false);
@@ -347,7 +386,10 @@ const ShopModal = ({ onClose }) => {
                   const totalTicketCount = Object.keys(cart)
                     .filter((key) => ticketIds.includes(key))
                     .reduce((acc, key) => acc + cart[key].quantity, 0);
-                  if (totalTicketCount > 0 && (!cart[item.id] || cart[item.id].quantity === 0)) {
+                  if (
+                    totalTicketCount > 0 &&
+                    (!cart[item.id] || cart[item.id].quantity === 0)
+                  ) {
                     disablePlus = true;
                   }
                   if (cart[item.id] && cart[item.id].quantity >= 1) {
