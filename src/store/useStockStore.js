@@ -23,8 +23,8 @@ const useStockStore = create((set, get) => ({
     "005930": "/src/assets/stockIcon/005930.png",
     "000660": "/src/assets/stockIcon/000660.png",
     "035420": "/src/assets/stockIcon/035420.png",
-    105560: "/src/assets/stockIcon/105560.png",
-    181710: "/src/assets/stockIcon/181710.png",
+    "105560": "/src/assets/stockIcon/105560.png",
+    "181710": "/src/assets/stockIcon/181710.png",
     "003550": "/src/assets/stockIcon/003550.png",
   },
 

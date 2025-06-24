@@ -210,8 +210,8 @@ const ShopModal = ({ onClose }) => {
     key.startsWith("random_")
   );
 
-  const { cash } = useUserStore((state) => state.assets);
-  const { inventory, updateCash, setInventory } = useUserStore();
+  const { acorn } = useUserStore((state) => state.assets);
+  const { inventory, updateAcorn, setInventory, fetchAccountInfo } = useUserStore();
 
   const handleCartChange = (item, quantity) => {
     const isGachaItem = item.id.startsWith("random_");
@@ -245,91 +245,66 @@ const ShopModal = ({ onClose }) => {
     });
   };
 
+  const ticketIds = ["normal_ticket", "rare_ticket", "legend_ticket"];
+
   const initiatePurchase = () => {
     if (Object.keys(cart).length === 0) {
       setNotification("구매할 상품을 선택해주세요.");
       return;
     }
+    const totalCost = Object.values(cart).reduce((acc, { item, quantity }) => acc + item.price * quantity, 0);
+
+    if (totalCost > acorn) {
+      setNotification("도토리가 부족합니다!");
+      return;
+    }
+    
     setIsConfirmOpen(true);
   };
 
   const executePurchase = async () => {
-    let totalCost = 0;
-    Object.values(cart).forEach(({ item, quantity }) => {
-      totalCost += item.price * quantity;
-    });
+    const cartItems = Object.values(cart);
+    const totalCost = cartItems.reduce((acc, { item, quantity }) => acc + item.price * quantity, 0);
+    const isTicket = ticketIds.includes(cartItems[0].item.id);
 
-    if (totalCost > cash) {
-      setNotification("현금이 부족합니다!");
-      return;
-    }
-
-    updateCash(-totalCost);
-
-    const purchasedItem = Object.values(cart)[0].item;
-    const isTicket = ticketIds.includes(purchasedItem.id);
-
-    // 티켓 뽑기 로직
     if (isTicket) {
+      // 티켓 구매 (API 호출)
       let type = "";
-      if (purchasedItem.id === "normal_ticket") type = "normal";
-      else if (purchasedItem.id === "rare_ticket") type = "rare";
-      else if (purchasedItem.id === "legend_ticket") type = "legend";
+      if (cartItems[0].item.id === "normal_ticket") type = "normal";
+      else if (cartItems[0].item.id === "rare_ticket") type = "rare";
+      else if (cartItems[0].item.id === "legend_ticket") type = "legend";
+      
       try {
         const res = await shopDraw({ type });
+        await fetchAccountInfo(); // 서버에서 최신 자산 정보 새로고침
         if (res.data && res.data.success) {
-          const { characterCode, isNew } = res.data.data;
-          // 캐릭터 코드 범위 체크 및 알림
-          let valid = false;
-          if (
-            type === "normal" &&
-            Number(characterCode) >= 1 &&
-            Number(characterCode) <= 60
-          )
-            valid = true;
-          if (
-            type === "rare" &&
-            Number(characterCode) >= 61 &&
-            Number(characterCode) <= 120
-          )
-            valid = true;
-          if (
-            type === "legend" &&
-            Number(characterCode) >= 121 &&
-            Number(characterCode) <= 180
-          )
-            valid = true;
-          if (!valid) {
-            setNotification(
-              "잘못된 캐릭터 코드가 뽑혔습니다: " + characterCode
-            );
-          } else {
-            setGachaResult({
-              name: `캐릭터 ${characterCode}`,
-              icon: `/characters/${characterCode}01.gif`,
-              code: characterCode,
-              isNew,
-            });
-          }
+           const { characterCode, isNew } = res.data.data;
+           setGachaResult({
+             name: `캐릭터 ${characterCode}`,
+             icon: `/characters/${characterCode}01.gif`,
+             code: characterCode,
+             isNew,
+           });
+           setNotification("뽑기에 성공했습니다!");
         } else {
           setNotification(res.data?.error?.message || "뽑기 실패");
         }
       } catch (e) {
-        setNotification("뽑기 API 호출 실패");
+        setNotification("뽑기 API 호출에 실패했습니다.");
       }
-      setCart({});
-      setResetKey((prev) => prev + 1);
-      setIsConfirmOpen(false);
-      return;
+    } else {
+      // 일반 아이템 구매 (도토리 차감)
+      updateAcorn(-totalCost); // 프론트에서 도토리 차감
+      const newInventory = { ...inventory };
+      cartItems.forEach(({ item, quantity }) => {
+        const existingItem = newInventory[item.id] || { ...item, quantity: 0 };
+        existingItem.quantity += quantity;
+        newInventory[item.id] = existingItem;
+      });
+      setInventory(newInventory);
+      setNotification("구매가 완료되었습니다.");
     }
 
-    // 기존 아이템 구매 로직
-    const newInventory = { ...inventory };
-    Object.values(cart).forEach(({ item, quantity }) => {
-      newInventory[item.id] = (newInventory[item.id] || 0) + quantity;
-    });
-    setInventory(newInventory);
-    setNotification("구매가 완료되었습니다.");
     setCart({});
     setResetKey((prev) => prev + 1);
     setIsConfirmOpen(false);
@@ -339,20 +314,21 @@ const ShopModal = ({ onClose }) => {
     setNotification("");
   };
 
-  const ticketIds = ["normal_ticket", "rare_ticket", "legend_ticket"];
+  const totalPrice = Object.values(cart).reduce(
+    (acc, { item, quantity }) => acc + item.price * quantity,
+    0
+  );
 
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <CloseButton onClick={onClose}>&times;</CloseButton>
+        <CloseButton onClick={onClose}>×</CloseButton>
         <Title>상점</Title>
-
         <TopInfoBar>
           <InfoItem>
-            현재 소지 금액<span>{cash.toLocaleString()} G</span>
+            🌰 도토리: <span>{acorn}개</span>
           </InfoItem>
         </TopInfoBar>
-
         <ModalContent>
           <LeftNav>
             <Tab
@@ -409,12 +385,16 @@ const ShopModal = ({ onClose }) => {
               })}
             </ItemList>
 
-            <ReceiptComponent
-              cart={cart}
-              onPurchase={initiatePurchase}
-              mode="buy"
-              isShop={true}
-            />
+            <ReceiptComponent cart={cart} onCartChange={handleCartChange} isGachaPurchase={true}/>
+            <TotalAndPurchase>
+              <span>총액:</span>
+              <TotalAmount>
+                🌰 ${totalPrice}
+              </TotalAmount>
+              <PurchaseButton onClick={initiatePurchase}>
+                🌰 ${totalPrice}개 구매하기
+              </PurchaseButton>
+            </TotalAndPurchase>
           </>
         </ModalContent>
       </ModalContainer>

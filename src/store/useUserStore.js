@@ -149,6 +149,13 @@ const useUserStore = create(
             cash: state.assets.cash + amount,
           },
         })),
+      updateAcorn: (amount) =>
+        set((state) => ({
+          assets: {
+            ...state.assets,
+            acorn: state.assets.acorn + amount,
+          },
+        })),
       updateStocks: (newStocks) =>
         set((state) => ({
           assets: {
