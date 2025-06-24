@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { getMe } from '../../api/accountApi';
 
 const OAuthSuccess = () => {
   useEffect(() => {
@@ -16,8 +17,20 @@ const OAuthSuccess = () => {
         localStorage.setItem('accessToken', match[1]);
       }
     }
-    // /main으로 리디렉션
-    window.location.href = '/main';
+
+    // accessToken 저장 후, /api/v1/users/me 요청 (테스트)
+    getMe()
+      .then(res => {
+        console.log('getMe 응답:', res.data);
+      })
+      .catch(err => {
+        console.error('getMe 에러:', err);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          window.location.href = '/main';
+        }, 100); // 5초(5000ms) 딜레이 후 이동
+      });
   }, []);
 
   return (
