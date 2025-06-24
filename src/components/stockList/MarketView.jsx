@@ -1,5 +1,6 @@
-import styled from 'styled-components';
-import useUserStore from '../../store/useUserStore';
+import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import useStockStore from "../../store/useStockStore";
 
 const ViewContainer = styled.div`
   flex-grow: 1;
@@ -38,6 +39,15 @@ const FilterButton = styled.button`
   color: #5d4037;
   font-family: monospace;
   font-weight: bold;
+`;
+
+const ConnectionStatus = styled.div`
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background-color: ${(props) => (props.isConnected ? "#4caf50" : "#f44336")};
+  color: white;
 `;
 
 const Table = styled.div`
@@ -107,7 +117,7 @@ const ItemCell = styled.div`
 const ItemImage = styled.div`
   width: 40px;
   height: 40px;
-  background-image: url(${props => props.imageUrl});
+  background-image: url(${(props) => props.imageUrl});
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -115,16 +125,28 @@ const ItemImage = styled.div`
 `;
 
 const PriceChange = styled.span`
-  color: ${(props) => (props.isPositive ? '#2e7d32' : '#c62828')};
+  color: ${(props) => (props.isPositive ? "#2e7d32" : "#c62828")};
   font-weight: bold;
 `;
 
-const MarketView = ({ items }) => {
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: #6d5b4f;
+  font-size: 1.2rem;
+`;
+
+const MarketView = () => {
   const { stocks } = useUserStore((state) => state.assets);
-  
-  // 각 주식의 보유 개수를 찾는 함수
-  const getOwnedQuantity = (itemName) => {
-    const ownedStock = stocks.find(stock => stock.name === itemName);
+  const { getFormattedStockData, isConnected, connectionStatus } =
+    useStockStore();
+
+  // 6개 종목만 고정, 실시간 데이터만 사용
+  const stockItems = getFormattedStockData();
+
+  // 각 주식의 보유 개수를 찾는 함수 (백엔드 데이터 기준)
+  const getOwnedQuantity = (stockCode) => {
+    const ownedStock = stocks.find((stock) => stock.stockCode === stockCode);
     return ownedStock ? ownedStock.quantity : 0;
   };
 
@@ -133,8 +155,11 @@ const MarketView = ({ items }) => {
       <Header>
         <Title>오늘의 시세</Title>
         <ButtonGroup>
-            <FilterButton>내 것만 보기</FilterButton>
-            <FilterButton>초기화</FilterButton>
+          <ConnectionStatus isConnected={isConnected}>
+            {isConnected ? "실시간 연결됨" : connectionStatus}
+          </ConnectionStatus>
+          <FilterButton>내 것만 보기</FilterButton>
+          <FilterButton>초기화</FilterButton>
         </ButtonGroup>
       </Header>
       <Table>
@@ -145,23 +170,32 @@ const MarketView = ({ items }) => {
           <span>등락폭(G)</span>
         </TableHeader>
         <TableBody>
-          {items.map(item => (
-            <TableRow key={item.id}>
-              <ItemCell>
-                <ItemImage imageUrl={item.imageUrl} />
-                <span>{item.name}</span>
-              </ItemCell>
-              <span>{item.price.toLocaleString()}</span>
-              <span>{getOwnedQuantity(item.name)}</span>
-              <PriceChange isPositive={item.change > 0}>
-                {item.change > 0 ? '+' : ''}{item.change.toLocaleString()}
-              </PriceChange>
-            </TableRow>
-          ))}
+          {stockItems.length > 0 ? (
+            stockItems.map((item) => (
+              <TableRow key={item.id}>
+                <ItemCell>
+                  <ItemImage imageUrl={item.imageUrl} />
+                  <span>{item.name}</span>
+                </ItemCell>
+                <span>{item.price.toLocaleString()}</span>
+                <span>{getOwnedQuantity(item.stockCode)}</span>
+                <PriceChange isPositive={item.change > 0}>
+                  {item.change > 0 ? "+" : ""}
+                  {item.change.toLocaleString()}(
+                  {item.changePercent > 0 ? "+" : ""}
+                  {(item.changePercent || 0).toFixed(2)}%)
+                </PriceChange>
+              </TableRow>
+            ))
+          ) : (
+            <LoadingMessage>
+              {isConnected ? "실시간 데이터를 불러오는 중..." : "연결 중..."}
+            </LoadingMessage>
+          )}
         </TableBody>
       </Table>
     </ViewContainer>
   );
 };
 
-export default MarketView; 
+export default MarketView;

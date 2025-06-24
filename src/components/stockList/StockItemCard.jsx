@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import useUserStore from "../../store/useUserStore";
+import useStockStore from "../../store/useStockStore";
 
 const CardContainer = styled.div`
   background-color: #e8dcc5;
@@ -13,6 +14,7 @@ const CardContainer = styled.div`
   flex: 1 1 calc(50% - 10px);
   box-sizing: border-box;
   font-family: monospace;
+  position: relative;
 `;
 
 const TopSection = styled.div`
@@ -59,6 +61,29 @@ const InfoRow = styled.div`
 const PriceChange = styled.span`
   color: ${(props) => (props.isPositive ? "#2e7d32" : "#c62828")};
   font-weight: bold;
+`;
+
+const RealTimeIndicator = styled.div`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 `;
 
 const BottomControls = styled.div`
@@ -131,19 +156,23 @@ const ActionButton = styled(QuantityButton)`
 const StockItemCard = ({ item, onCartChange, mode }) => {
   const [quantity, setQuantity] = useState(0);
   const { stocks, cash } = useUserStore((state) => state.assets);
-  
-  // 보유 주식 찾기
-  const ownedStock = stocks.find(stock => stock.name === item.name);
+  const { getStockByCode } = useStockStore();
+
+  // 실시간 데이터만 사용 (더미/초기화 없음)
+  const realTimeData = getStockByCode(item.stockCode);
+
+  // 보유 주식 찾기 (백엔드 데이터 기준)
+  const ownedStock = stocks.find((stock) => stock.stockCode === item.stockCode);
   const ownedQuantity = ownedStock ? ownedStock.quantity : 0;
-  
+
   // 최대 구매/매도 가능 수량 계산
   let maxQuantity;
   if (mode === "sell") {
-    // 매도 모드: 보유 수량
     maxQuantity = ownedQuantity;
   } else {
-    // 매수 모드: 현금으로 구매 가능한 수량
-    maxQuantity = Math.floor(cash / item.price);
+    // 실시간 가격 사용
+    const currentPrice = realTimeData?.currentPrice || item.price || 1;
+    maxQuantity = Math.floor(cash / currentPrice);
   }
 
   const updateQuantity = (newAmount) => {
@@ -159,25 +188,31 @@ const StockItemCard = ({ item, onCartChange, mode }) => {
     updateQuantity(isNaN(value) ? 0 : value);
   };
 
+  // 전일 대비, 주당 가격 실시간 데이터 기준 표시
+  const changeAmount = realTimeData?.changeAmount ?? 0;
+  const changeRate = realTimeData?.changeRate ?? 0;
+  const currentPrice = realTimeData?.currentPrice ?? item.price ?? 0;
+
   return (
     <CardContainer>
+      {realTimeData && <RealTimeIndicator />}
       <TopSection>{item.name}</TopSection>
       <MainContent>
         <ItemImage imageUrl={item.imageUrl} />
         <DetailsContainer>
           <InfoRow>
             <span>
-              {mode === "sell" 
-                ? `${ownedQuantity}주 보유` 
-                : `${maxQuantity}주 구매 가능`
-              }
+              {mode === "sell"
+                ? `${ownedQuantity}주 보유`
+                : `${maxQuantity}주 구매 가능`}
             </span>
           </InfoRow>
           <InfoRow>
             <span>전일 대비</span>
-            <PriceChange isPositive={item.change > 0}>
-              {item.change > 0 ? "+" : ""}
-              {item.change.toLocaleString()}
+            <PriceChange isPositive={changeAmount > 0}>
+              {changeAmount > 0 ? "+" : ""}
+              {changeAmount.toLocaleString()}G ({changeRate > 0 ? "+" : ""}
+              {(changeRate || 0).toFixed(2)}%)
             </PriceChange>
           </InfoRow>
           <InfoRow>
@@ -190,7 +225,7 @@ const StockItemCard = ({ item, onCartChange, mode }) => {
           </InfoRow>
           <InfoRow>
             <span>주당</span>
-            <span>{item.price.toLocaleString()}G</span>
+            <span>{currentPrice.toLocaleString()}G</span>
           </InfoRow>
         </DetailsContainer>
       </MainContent>
@@ -220,7 +255,7 @@ const StockItemCard = ({ item, onCartChange, mode }) => {
             최대
           </ActionButton>
           <TotalPrice>
-            {(quantity * item.price).toLocaleString()} (G)
+            {(quantity * currentPrice).toLocaleString()} (G)
           </TotalPrice>
         </ActionButtons>
       </BottomControls>

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Card = styled.div`
   width: 330px;
@@ -9,7 +9,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-family: 'DNFBitBitv2', sans-serif;
+  font-family: "DNFBitBitv2", sans-serif;
   color: #5d4037;
 `;
 
@@ -53,10 +53,39 @@ const InfoValue = styled.span`
   font-size: 1rem;
   font-weight: bold;
   text-align: right;
-  color: ${(props) => props.color || '#5d4037'};
+  color: ${(props) => props.color || "#5d4037"};
 `;
 
-const OwnedStockCard = ({ item, currentPrice }) => {
+const PriceChange = styled.span`
+  color: ${(props) => (props.isPositive ? "#c84a31" : "#1252a1")};
+  font-weight: bold;
+  font-size: 0.9rem;
+`;
+
+const RealTimeIndicator = styled.div`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+`;
+
+const OwnedStockCard = ({ item, currentPrice, realTimeData }) => {
   const { name, quantity, avgBuyPrice, imageUrl } = item;
 
   const totalBuyPrice = avgBuyPrice * quantity;
@@ -64,10 +93,16 @@ const OwnedStockCard = ({ item, currentPrice }) => {
   const profit = currentTotalValue - totalBuyPrice;
   const profitRate = totalBuyPrice > 0 ? (profit / totalBuyPrice) * 100 : 0;
 
-  const profitColor = profit > 0 ? '#c84a31' : (profit < 0 ? '#1252a1' : '#5d4037');
+  const profitColor =
+    profit > 0 ? "#c84a31" : profit < 0 ? "#1252a1" : "#5d4037";
+
+  // 실시간 데이터에서 가격 변화 정보 추출
+  const priceChange = realTimeData?.priceChange || 0;
+  const priceChangePercent = realTimeData?.priceChangePercent || 0;
 
   return (
-    <Card>
+    <Card style={{ position: "relative" }}>
+      {realTimeData && <RealTimeIndicator />}
       <Header>{name}</Header>
       <Body>
         <StockIcon src={imageUrl} alt={name} />
@@ -79,25 +114,35 @@ const OwnedStockCard = ({ item, currentPrice }) => {
           <InfoValue>{avgBuyPrice.toLocaleString()}G</InfoValue>
 
           <InfoLabel>현재가</InfoLabel>
-          <InfoValue>{currentPrice.toLocaleString()}G</InfoValue>
-          
+          <InfoValue>
+            {currentPrice.toLocaleString()}G
+            {realTimeData && (
+              <PriceChange isPositive={priceChange > 0}>
+                {priceChange > 0 ? " ▲" : " ▼"}{" "}
+                {Math.abs(priceChange).toLocaleString()}G (
+                {priceChangePercent > 0 ? "+" : ""}
+                {priceChangePercent.toFixed(2)}%)
+              </PriceChange>
+            )}
+          </InfoValue>
+
           <InfoLabel>총 평가액</InfoLabel>
-          <InfoValue>{Math.round(currentTotalValue).toLocaleString()}G</InfoValue>
+          <InfoValue>
+            {Math.round(currentTotalValue).toLocaleString()}G
+          </InfoValue>
 
           <InfoLabel>평가 손익</InfoLabel>
           <InfoValue color={profitColor}>
-            {profit >= 0 ? '+' : ''}
+            {profit >= 0 ? "+" : ""}
             {Math.round(profit).toLocaleString()}G
           </InfoValue>
 
           <InfoLabel>수익률</InfoLabel>
-          <InfoValue color={profitColor}>
-            {profitRate.toFixed(2)}%
-          </InfoValue>
+          <InfoValue color={profitColor}>{profitRate.toFixed(2)}%</InfoValue>
         </InfoSection>
       </Body>
     </Card>
   );
 };
 
-export default OwnedStockCard; 
+export default OwnedStockCard;

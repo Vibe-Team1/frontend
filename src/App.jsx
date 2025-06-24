@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import LandingPage from "./components/landing/LandingPage";
 import MainPage from "./components/main/MainPage";
-import bgm from './assets/bgm.mp3';
+import WebSocketProvider from "./components/common/WebSocketProvider";
+import bgm from "./assets/bgm.mp3";
 
 function App() {
   const audioRef = useRef(null);
@@ -11,11 +12,14 @@ function App() {
   const playMusic = () => {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.play().then(() => {
-        setIsMusicPlaying(true);
-      }).catch(() => {
-        setIsMusicPlaying(false);
-      });
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsMusicPlaying(true);
+        })
+        .catch(() => {
+          setIsMusicPlaying(false);
+        });
     }
   };
 
@@ -30,15 +34,20 @@ function App() {
     const audio = audioRef.current;
     if (audio) {
       const handlePlayAttempt = () => {
-        audio.play().then(() => {
-          setIsMusicPlaying(true);
-        }).catch(() => {
-          setIsMusicPlaying(false);
-          document.body.removeEventListener('click', handlePlayAttempt);
-          document.body.addEventListener('click', handleUserInteraction, { once: true });
-        });
+        audio
+          .play()
+          .then(() => {
+            setIsMusicPlaying(true);
+          })
+          .catch(() => {
+            setIsMusicPlaying(false);
+            document.body.removeEventListener("click", handlePlayAttempt);
+            document.body.addEventListener("click", handleUserInteraction, {
+              once: true,
+            });
+          });
       };
-  
+
       const handleUserInteraction = () => {
         audio.play().then(() => {
           setIsMusicPlaying(true);
@@ -48,7 +57,7 @@ function App() {
       handlePlayAttempt();
 
       return () => {
-        document.body.removeEventListener('click', handleUserInteraction);
+        document.body.removeEventListener("click", handleUserInteraction);
       };
     }
   }, []);
@@ -56,18 +65,23 @@ function App() {
   return (
     <>
       <audio ref={audioRef} src={bgm} loop />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/main" element={
-            <MainPage 
-              isMusicPlaying={isMusicPlaying}
-              playMusic={playMusic}
-              pauseMusic={pauseMusic}
-            />} 
-          />
-        </Routes>
-      </BrowserRouter>
+      <WebSocketProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route
+              path="/main"
+              element={
+                <MainPage
+                  isMusicPlaying={isMusicPlaying}
+                  playMusic={playMusic}
+                  pauseMusic={pauseMusic}
+                />
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </WebSocketProvider>
     </>
   );
 }

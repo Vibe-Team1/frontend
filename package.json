@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.1.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
+    "sockjs-client": "^1.6.1",
     "styled-components": "^6.1.19",
     "zustand": "^5.0.5"
   },

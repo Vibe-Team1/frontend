@@ -1,6 +1,7 @@
-import styled, { keyframes } from 'styled-components';
-import useUserStore from '../../store/useUserStore';
-import OwnedStockCard from './OwnedStockCard';
+import styled, { keyframes } from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import useStockStore from "../../store/useStockStore";
+import OwnedStockCard from "./OwnedStockCard";
 
 const scaleUp = keyframes`
   from {
@@ -14,18 +15,31 @@ const scaleUp = keyframes`
 `;
 
 const ModalOverlay = styled.div`
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
-  display: flex; justify-content: center; align-items: center; z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 `;
 
 const ModalContainer = styled.div`
-  width: 90%; max-width: 1400px; height: 85%;
+  width: 90%;
+  max-width: 1400px;
+  height: 85%;
   background-color: #f3e9d3;
-  border: 10px solid #4a2e2a; border-radius: 15px;
+  border: 10px solid #4a2e2a;
+  border-radius: 15px;
   box-shadow: inset 0 0 0 5px #8d6e63;
-  padding: 25px; box-sizing: border-box; position: relative;
-  font-family: monospace; color: #5d4037;
+  padding: 25px;
+  box-sizing: border-box;
+  position: relative;
+  font-family: monospace;
+  color: #5d4037;
   animation: ${scaleUp} 0.25s ease-out forwards;
 `;
 
@@ -39,12 +53,24 @@ const Title = styled.h2`
 `;
 
 const CloseButton = styled.button`
-  position: absolute; top: 15px; right: 15px;
-  background-color: #ffab40; color: #5d4037;
-  border: 3px solid #c62828; border-radius: 50%;
-  width: 40px; height: 40px; font-size: 24px; font-weight: bold;
-  display: flex; justify-content: center; align-items: center; z-index: 10;
-  &:hover { background-color: #ffb74d; }
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #ffab40;
+  color: #5d4037;
+  border: 3px solid #c62828;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  &:hover {
+    background-color: #ffb74d;
+  }
 `;
 
 const Content = styled.div`
@@ -80,43 +106,44 @@ const StockList = styled.div`
   padding: 5px 15px 5px 5px;
 `;
 
-// This dummy data should ideally come from a shared source or API
-const dummyItems = [
-    { id: 1, name: '삼성전자', price: 82400 },
-    { id: 2, name: 'SK하이닉스', price: 184500 },
-    { id: 3, name: 'LG에너지솔루션', price: 388000 },
-    { id: 4, name: '삼성바이오로직스', price: 805000 },
-    { id: 5, name: '현대차', price: 251000 },
-    { id: 6, name: '기아', price: 115000 },
-    { id: 7, name: '셀트리온', price: 181000 },
-    { id: 8, name: 'POSCO홀딩스', price: 435000 },
-    { id: 9, name: 'NAVER', price: 188000 },
-    { id: 10, name: 'LG화학', price: 450000 },
-    { id: 11, name: '삼성SDI', price: 420000 },
-    { id: 12, name: '삼성물산', price: 150000 },
-    { id: 13, name: 'KB금융', price: 76000 },
-    { id: 14, name: '카카오', price: 52000 },
-];
+const ConnectionStatus = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background-color: ${(props) => (props.isConnected ? "#4caf50" : "#f44336")};
+  color: white;
+`;
 
 const MyStocksModal = ({ onClose, onNavigate }) => {
   const { stocks } = useUserStore((state) => state.assets);
-  const stockPrices = dummyItems.reduce((acc, item) => {
-    acc[item.name] = item.price;
-    return acc;
-  }, {});
+  const { getStockByName, isConnected, connectionStatus } = useStockStore();
 
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>&times;</CloseButton>
+        <ConnectionStatus isConnected={isConnected}>
+          {isConnected ? "실시간 연결됨" : connectionStatus}
+        </ConnectionStatus>
         <Title>내 주식</Title>
         <Content>
           <StockList>
             {stocks.map((item) => {
-              const currentPrice = stockPrices[item.name] || item.avgBuyPrice;
+              const realTimeStock = getStockByName(item.name);
+              const currentPrice =
+                realTimeStock?.currentPrice || item.avgBuyPrice;
               return (
-                <OwnedStockCard key={item.id} item={item} currentPrice={currentPrice} />
-              )
+                <OwnedStockCard
+                  key={item.id}
+                  item={item}
+                  currentPrice={currentPrice}
+                  realTimeData={realTimeStock}
+                />
+              );
             })}
           </StockList>
           <NavigateButton onClick={onNavigate}>구매/판매 창으로</NavigateButton>
@@ -126,4 +153,4 @@ const MyStocksModal = ({ onClose, onNavigate }) => {
   );
 };
 
-export default MyStocksModal; 
+export default MyStocksModal;
