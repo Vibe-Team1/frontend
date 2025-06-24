@@ -83,7 +83,7 @@ const useUserStore = create(
       },
       // 현재 선택된 테마 정보
       selectedTheme: {
-        background: "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png", // 기본 배경을 S3 URL로 설정
+        background: "/background/01.jpeg", // 기본 배경을 public 폴더 기준으로 설정
       },
       // 커스터마이제이션 데이터
       customization: {
@@ -115,7 +115,9 @@ const useUserStore = create(
         })),
       // 테마 변경 함수
       updateSelectedTheme: (backgroundCode) => {
-        const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${backgroundCode}.png`;
+        // 01은 jpeg, 02는 png로 처리
+        const ext = backgroundCode === "01" ? "jpeg" : "png";
+        const background = `/background/${backgroundCode}.${ext}`;
         localStorage.setItem('currentBackgroundCode', backgroundCode);
         set((state) => ({
           selectedTheme: { ...state.selectedTheme, background },
@@ -245,7 +247,7 @@ const useUserStore = create(
             name: stock.stockName,
             quantity: stock.quantity,
             avgBuyPrice: stock.averagePrice,
-            imageUrl: `/src/assets/stockIcon/${stock.stockCode}.png`,
+            imageUrl: `/stockIcon/${stock.stockCode}.png`,
             stockCode: stock.stockCode,
           }));
 
@@ -329,7 +331,7 @@ const useUserStore = create(
           const currentCharacterCode = userData.profile?.currentCharacterCode || "001";
           const currentBackgroundCode = userData.profile?.currentBackgroundCode || "01";
           const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
-          const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${currentBackgroundCode}.png`;
+          const background = `/background/${currentBackgroundCode}.png`;
           set({ 
             user: { ...userData, avatar },
             selectedCharacter: { 
@@ -374,7 +376,7 @@ const useUserStore = create(
           });
           
           // 성공 시 로컬 상태 업데이트
-          const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${backgroundCode}.png`;
+          const background = `/background/${backgroundCode}.png`;
           const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode}.gif`;
           
           set((state) => ({
@@ -501,6 +503,20 @@ const useUserStore = create(
           };
         }
       },
+
+      isFriendView: false,
+      friendViewBackground: null,
+      friendViewCharacters: [],
+      setFriendView: (backgroundCode, characterCodes) => set({
+        isFriendView: true,
+        friendViewBackground: backgroundCode,
+        friendViewCharacters: characterCodes,
+      }),
+      resetFriendView: () => set({
+        isFriendView: false,
+        friendViewBackground: null,
+        friendViewCharacters: [],
+      }),
     }),
     {
       name: "user-storage", // Key in localStorage

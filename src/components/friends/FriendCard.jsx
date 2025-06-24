@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import api from "../../api/axiosInstance";
 
 const CardContainer = styled.div`
   background: #fdfaf4;
@@ -93,6 +95,19 @@ const FriendCard = ({ friend }) => {
   const displayCash = cash || 0;
   const displayAvatar = avatarUrl || "/characters/101.gif";
 
+  const setFriendView = useUserStore((state) => state.setFriendView);
+  const handleMove = async () => {
+    try {
+      const res = await api.get(`/api/v1/users/others?nickname=${encodeURIComponent(nickname)}`);
+      if (res.data && res.data.success) {
+        const data = res.data.data;
+        setFriendView(data.currentBackgroundCode, data.characterCodes);
+      }
+    } catch {
+      alert('친구 정보 불러오기 실패');
+    }
+  };
+
   return (
     <CardContainer>
       <TopSection>
@@ -111,7 +126,7 @@ const FriendCard = ({ friend }) => {
           </InfoRow>
         </InfoSection>
       </TopSection>
-      <ActionButton>이동하기</ActionButton>
+      <ActionButton onClick={handleMove}>이동하기</ActionButton>
     </CardContainer>
   );
 };

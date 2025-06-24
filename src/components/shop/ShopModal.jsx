@@ -137,7 +137,7 @@ const ItemList = styled.div`
 
 const characterItems = Array.from({ length: 12 }, (_, i) => {
   const numbers = [
-    101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201,
+    '001', '016', '031', '046', '061', '076', '091', '106', '121', '136', '151', '166'
   ];
   const gifNumStr = numbers[i];
 
@@ -145,8 +145,8 @@ const characterItems = Array.from({ length: 12 }, (_, i) => {
     id: `slime_${gifNumStr}`,
     name: `슬라임 ${i + 1}`,
     description: "새로운 슬라임 캐릭터를 잠금 해제합니다.",
-    price: 150000 * (i + 1),
-    icon: `/characters/${gifNumStr}.gif`,
+    price: 2000000 * (i + 1),
+    icon: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${gifNumStr}.gif`,
   };
 });
 
@@ -192,7 +192,7 @@ const ShopModal = ({ onClose }) => {
   );
 
   const { cash, acorn } = useUserStore((state) => state.assets);
-  const { inventory, updateCash, setInventory, setAcorn } = useUserStore();
+  const { inventory, updateCash, setInventory, setAcorn, fetchCustomization } = useUserStore();
 
   const handleCartChange = (item, quantity) => {
     const isGachaItem = item.id.startsWith("random_");
@@ -245,7 +245,7 @@ const ShopModal = ({ onClose }) => {
       return;
     }
 
-    updateCash(-totalCost);
+    
 
     const purchasedItem = Object.values(cart)[0].item;
     const isTicket = ticketIds.includes(purchasedItem.id);
@@ -311,11 +311,12 @@ const ShopModal = ({ onClose }) => {
             setIsConfirmOpen(false);
             setCart({});
             setResetKey((prev) => prev + 1);
+            if (typeof fetchCustomization === 'function') fetchCustomization();
           }
         } else {
           setNotification(res.data?.error?.message || "뽑기 실패");
         }
-      } catch (e) {
+      } catch {
         setNotification("뽑기 API 호출 실패");
       }
       return;
@@ -331,6 +332,8 @@ const ShopModal = ({ onClose }) => {
     setCart({});
     setResetKey((prev) => prev + 1);
     setIsConfirmOpen(false);
+    updateCash(-totalCost);
+    if (typeof fetchCustomization === 'function') fetchCustomization();
   };
 
   const handleCloseNotification = () => {

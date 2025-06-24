@@ -67,6 +67,9 @@ const BottomNav = styled.nav`
 const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const selectedTheme = useUserStore((state) => state.selectedTheme);
   const customization = useUserStore((state) => state.customization);
+  const isFriendView = useUserStore((state) => state.isFriendView);
+  const friendViewBackground = useUserStore((state) => state.friendViewBackground);
+  const resetFriendView = useUserStore((state) => state.resetFriendView);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
@@ -80,9 +83,12 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
 
   // 배경 이미지 결정 (API 응답 > customization > selectedTheme > 기본 배경 순서)
   const currentBackgroundCode = localStorage.getItem('currentBackgroundCode') || "01";
-  const apiBackground = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${currentBackgroundCode}.png`;
-  const defaultBackground = "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png";
-  const backgroundImage = apiBackground || customization.backgroundUrls?.[0] || selectedTheme.background || defaultBackground;
+  const ext = currentBackgroundCode === "01" ? "jpeg" : "png";
+  const apiBackground = `/background/${currentBackgroundCode}.${ext}`;
+  const defaultBackground = "/background/01.jpeg";
+  const friendBgExt = friendViewBackground === "01" ? "jpeg" : "png";
+  const friendBg = friendViewBackground ? `/background/${friendViewBackground}.${friendBgExt}` : null;
+  const backgroundImage = isFriendView ? friendBg : (apiBackground || customization.backgroundUrls?.[0] || selectedTheme.background || defaultBackground);
 
   // 앱 시작 시 백엔드에서 데이터 불러오기
   useEffect(() => {
@@ -177,11 +183,30 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
             label="설정"
             onClick={handleOpenSettingsModal}
           />
-          <NavItem
-            iconUrl={doorIconUrl}
-            label="나가기"
-            onClick={handleOpenExitModal}
-          />
+          {isFriendView ? (
+            <button
+              style={{
+                border: 'none',
+                background: '#ffab40',
+                color: '#5d4037',
+                borderRadius: '8px',
+                padding: '12px 24px',
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
+                marginLeft: '10px',
+                cursor: 'pointer',
+              }}
+              onClick={resetFriendView}
+            >
+              내 메인페이지로 돌아가기
+            </button>
+          ) : (
+            <NavItem
+              iconUrl={doorIconUrl}
+              label="나가기"
+              onClick={handleOpenExitModal}
+            />
+          )}
         </NavContainer>
       </BottomSection>
       {isTradeModalOpen && <TradeModal onClose={handleCloseTradeModal} />}

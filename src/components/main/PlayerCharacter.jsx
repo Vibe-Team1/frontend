@@ -76,6 +76,8 @@ const Character = ({ characterUrl, index }) => {
 const PlayerCharacter = () => {
   const user = useUserStore((state) => state.user);
   const customization = useUserStore((state) => state.customization);
+  const isFriendView = useUserStore((state) => state.isFriendView);
+  const friendViewCharacters = useUserStore((state) => state.friendViewCharacters);
   const avatar = user?.avatar || "/characters/101.gif";
   const [position, setPosition] = useState({ top: "50%", left: "50%" });
   const [direction, setDirection] = useState("left");
@@ -118,8 +120,8 @@ const PlayerCharacter = () => {
         <img src={avatar} alt="Player Character" />
       </CharacterContainer> */}
       
-      {/* 보유한 모든 캐릭터들 */}
-      {customization.characterUrls && customization.characterUrls.slice(-5).map((characterUrl, index) => (
+      {/* 보유한 모든 캐릭터들 (친구 뷰면 친구 캐릭터, 아니면 내 캐릭터) */}
+      {(isFriendView ? friendViewCharacters : (customization.characterUrls || [])).slice(-5).map((characterUrl, index) => (
         <Character 
           key={`character-${index}`} 
           characterUrl={characterUrl} 

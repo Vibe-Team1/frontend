@@ -113,8 +113,8 @@ const characterCodes = generateCharacterCodes();
 
 // 테마 배경화면 배열 (S3 URL 사용)
 const themeBackgrounds = [
-  "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png",
-  "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/02.png"
+  "/background/01.jpeg",
+  "/background/02.png"
 ];
 
 const CustomizationPanel = () => {
@@ -165,8 +165,8 @@ const CustomizationPanel = () => {
     if (activeTab === 'character' || activeTab === 'myCharacter') {
       characterCode = selectedItem;
     } else if (activeTab === 'theme') {
-      // S3 URL에서 backgroundCode 추출 (예: "01", "02")
-      backgroundCode = selectedItem.split('/').pop().replace('.png', '');
+      // public 경로에서 backgroundCode 추출 (예: "01", "02")
+      backgroundCode = selectedItem.split('/').pop().split('.')[0];
     }
     
     try {

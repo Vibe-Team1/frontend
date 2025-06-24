@@ -3,8 +3,7 @@
 import React, { useEffect } from "react";
 import "./LandingPage.css";
 
-const backgroundImage = "/landing.jpg"; // CSS에서 사용하는 경로와 일치
-const gifImage = "/characters/101.gif"; // public 폴더 기준 경로
+const gifImage = "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/061.gif"; // public 폴더 기준 경로
 
 const GOOGLE_OAUTH_URL = 'http://finland.r-e.kr:8080/oauth2/authorization/google';
 const title = " Fin Land ";
@@ -15,10 +14,8 @@ export default function LandingPage() {
       window.location.href = GOOGLE_OAUTH_URL;
     };
     window.addEventListener('keydown', handleRedirect);
-    window.addEventListener('click', handleRedirect);
     return () => {
       window.removeEventListener('keydown', handleRedirect);
-      window.removeEventListener('click', handleRedirect);
     };
   }, []);
 
