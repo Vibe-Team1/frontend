@@ -12,6 +12,7 @@ import {
   getFriends,
   addFriend,
   getAllUsers,
+  getCustomization,
 } from "../api/accountApi";
 
 const today = new Date();
@@ -82,6 +83,16 @@ const useUserStore = create(
       selectedTheme: {
         background: null, // MainPage에서 기본 배경을 사용
       },
+      // 커스터마이제이션 데이터
+      customization: {
+        backgrounds: [],
+        characters: [],
+        backgroundUrls: [],
+        characterUrls: [],
+      },
+      // 보유 캐릭터 정보 (로컬 스토리지에 저장)
+      ownedCharacters: [],
+      setOwnedCharacters: (characters) => set({ ownedCharacters: characters }),
       // 캐릭터 변경 함수
       updateSelectedCharacter: (characterCode) =>
         set((state) => ({
@@ -308,11 +319,27 @@ const useUserStore = create(
         }
       },
 
+      // 커스터마이제이션 데이터 불러오기
+      fetchCustomization: async () => {
+        try {
+          const response = await getCustomization();
+          const customizationData = response.data.data;
+          set({ customization: customizationData });
+          
+          // 보유 캐릭터 정보를 로컬 스토리지에 저장
+          const ownedChars = customizationData.characters || [];
+          set({ ownedCharacters: ownedChars });
+        } catch (error) {
+          console.error("커스터마이제이션 데이터 조회 실패:", error);
+        }
+      },
+
       initializeData: async () => {
         await get().fetchMe();
         await get().fetchAccountInfo();
         await get().fetchUserStocks();
         await get().fetchPortfolio();
+        await get().fetchCustomization();
       },
 
       // 에러 초기화

@@ -67,6 +67,7 @@ const BottomNav = styled.nav`
 
 const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const selectedTheme = useUserStore((state) => state.selectedTheme);
+  const customization = useUserStore((state) => state.customization);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
@@ -75,9 +76,11 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const [isMyFriendsModalOpen, setIsMyFriendsModalOpen] = useState(false);
   const [isShopModalOpen, setIsShopModalOpen] = useState(false);
   const navigate = useNavigate();
-  const [activeModal, setActiveModal] = useState(null);
-  const { initializeData, isLoading, error } = useUserStore();
+  const { initializeData } = useUserStore();
   const setGameDate = useUserStore((state) => state.updateGameDate);
+
+  // 배경 이미지 결정 (customization > selectedTheme > 기본 배경 순서)
+  const backgroundImage = customization.backgroundUrls?.[0] || selectedTheme.background || mainBackground;
 
   // 앱 시작 시 백엔드에서 데이터 불러오기
   useEffect(() => {
@@ -129,7 +132,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   };
 
   return (
-    <MainContainer backgroundImage={selectedTheme.background || mainBackground}>
+    <MainContainer backgroundImage={backgroundImage}>
       <TopSection>
         <div onClick={handleOpenMyPageModal}>
           <Profile />

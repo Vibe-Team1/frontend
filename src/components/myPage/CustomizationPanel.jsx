@@ -52,10 +52,34 @@ const ItemSlot = styled.div`
     background-color: #eee;
     border-radius: 8px;
     border: 3px solid transparent;
+    position: relative;
+    cursor: pointer;
 
     &.selected {
         border-color: #ffab40;
     }
+
+    &.owned {
+        cursor: pointer;
+    }
+
+    &.not-owned {
+        cursor: not-allowed;
+    }
+`;
+
+const ItemSlotOverlay = styled.div`
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  border-radius: 8px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
 `;
 
 const BottomBar = styled.div`
@@ -73,52 +97,46 @@ const ApplyButton = styled.button`
     font-size: 1.1rem;
 `;
 
-const characterIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const unavailableIds = [5, 8]; // 없는 캐릭터 예시
+// 120개의 캐릭터 코드 생성 (001, 002, ..., 120)
+const generateCharacterCodes = () => {
+  const codes = [];
+  for (let i = 1; i <= 120; i++) {
+    codes.push(i.toString().padStart(3, '0'));
+  }
+  return codes;
+};
 
-const costumeIds = Array.from({ length: 15 }, (_, i) => i + 1);
+const characterCodes = generateCharacterCodes();
 
-const ItemSlotOverlay = styled.div`
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
-  border-radius: 8px;
-  z-index: 2;
-`;
-
-const ItemSlotWithOverlay = styled(ItemSlot)`
-  position: relative;
-`;
+// 테마 배경화면 배열
+const themeBackgrounds = [
+  "/src/assets/main-background3.png",
+  "/src/assets/main-background5.jpeg"
+];
 
 const CustomizationPanel = () => {
   const [activeTab, setActiveTab] = useState('character');
-  const { selectedCharacter, updateSelectedCharacter, updateSelectedCostume, updateSelectedTheme } = useUserStore();
+  const { updateSelectedCharacter, updateSelectedTheme, ownedCharacters } = useUserStore();
   const [selectedItem, setSelectedItem] = useState(null);
-  
-  // 테마 배경화면 배열
-  const themeBackgrounds = [
-    "/src/assets/main-background3.png",
-    "/src/assets/main-background5.jpeg"
-  ];
   
   // 캐릭터 이미지 경로 생성 함수
   const getCharacterImage = (characterCode) => {
-    return `/characters/${characterCode}01.gif`; // 기본 의상(01번)으로 표시
+    return `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode}.gif`;
   };
   
-  // 의상 이미지 경로 생성 함수
-  const getCostumeImage = (costumeCode) => {
-    const costumeStr = costumeCode.toString().padStart(2, '0');
-    return `/characters/${selectedCharacter.characterCode}${costumeStr}.gif`;
+  // 캐릭터 보유 여부 확인
+  const isCharacterOwned = (characterCode) => {
+    return ownedCharacters.includes(characterCode);
   };
+  
+  // 보유한 캐릭터만 필터링
+  const ownedCharacterCodes = characterCodes.filter(code => isCharacterOwned(code));
   
   // 적용하기 함수
   const handleApply = () => {
     if (selectedItem) {
-      if (activeTab === 'character') {
-        updateSelectedCharacter(selectedItem);
-      } else if (activeTab === 'costume') {
-        updateSelectedCostume(selectedItem);
+      if (activeTab === 'character' || activeTab === 'myCharacter') {
+        updateSelectedCharacter(parseInt(selectedItem));
       } else if (activeTab === 'theme') {
         updateSelectedTheme(selectedItem);
       }
@@ -127,8 +145,10 @@ const CustomizationPanel = () => {
   };
   
   // 아이템 선택 함수
-  const handleItemSelect = (itemId) => {
-    setSelectedItem(itemId);
+  const handleItemSelect = (itemId, isOwned) => {
+    if (isOwned) {
+      setSelectedItem(itemId);
+    }
   };
   
   return (
@@ -136,49 +156,54 @@ const CustomizationPanel = () => {
       <Title>꾸미기</Title>
       <TabContainer>
         <TabButton active={activeTab === 'character'} onClick={() => setActiveTab('character')}>캐릭터</TabButton>
-        <TabButton active={activeTab === 'costume'} onClick={() => setActiveTab('costume')}>의상</TabButton>
+        <TabButton active={activeTab === 'myCharacter'} onClick={() => setActiveTab('myCharacter')}>내 캐릭터</TabButton>
         <TabButton active={activeTab === 'theme'} onClick={() => setActiveTab('theme')}>테마</TabButton>
       </TabContainer>
       <ItemGrid>
-        {activeTab === 'character' && characterIds.map(id => (
-          <ItemSlotWithOverlay 
-            key={id} 
-            className={selectedItem === id ? 'selected' : ''}
-            onClick={() => handleItemSelect(id)}
-          >
-            <img 
-              src={getCharacterImage(id)} 
-              alt={`캐릭터${id}`} 
-              style={{width:'100%',height:'100%',objectFit:'contain'}} 
-            />
-            {unavailableIds.includes(id) && <ItemSlotOverlay />}
-          </ItemSlotWithOverlay>
-        ))}
-        {activeTab === 'costume' && costumeIds.map(id => (
-          <ItemSlot 
-            key={id} 
-            className={selectedItem === id ? 'selected' : ''}
-            onClick={() => handleItemSelect(id)}
-          >
-            <img 
-              src={getCostumeImage(id)} 
-              alt={`의상${id}`} 
-              style={{width:'100%',height:'100%',objectFit:'contain'}} 
-            />
-          </ItemSlot>
-        ))}
+        {activeTab === 'character' && characterCodes.map(code => {
+          const isOwned = isCharacterOwned(code);
+          return (
+            <ItemSlot 
+              key={code} 
+              className={`${selectedItem === code ? 'selected' : ''} ${isOwned ? 'owned' : 'not-owned'}`}
+              onClick={() => handleItemSelect(code, isOwned)}
+            >
+              <img 
+                src={getCharacterImage(code)} 
+                alt={`캐릭터${code}`} 
+                style={{width:'100%',height:'100%',objectFit:'contain'}} 
+              />
+              {!isOwned && <ItemSlotOverlay>미보유</ItemSlotOverlay>}
+            </ItemSlot>
+          );
+        })}
+        {activeTab === 'myCharacter' && ownedCharacterCodes.map(code => {
+          return (
+            <ItemSlot 
+              key={code} 
+              className={`${selectedItem === code ? 'selected' : ''} owned`}
+              onClick={() => handleItemSelect(code, true)}
+            >
+              <img 
+                src={getCharacterImage(code)} 
+                alt={`캐릭터${code}`} 
+                style={{width:'100%',height:'100%',objectFit:'contain'}} 
+              />
+            </ItemSlot>
+          );
+        })}
         {activeTab === 'theme' && themeBackgrounds.map((background, index) => (
-          <ItemSlotWithOverlay 
+          <ItemSlot 
             key={index} 
             className={selectedItem === background ? 'selected' : ''}
-            onClick={() => handleItemSelect(background)}
+            onClick={() => handleItemSelect(background, true)}
           >
             <img 
               src={background} 
               alt={`테마${index + 1}`} 
               style={{width:'100%',height:'100%',objectFit:'contain'}} 
             />
-          </ItemSlotWithOverlay>
+          </ItemSlot>
         ))}
       </ItemGrid>
       <BottomBar>
