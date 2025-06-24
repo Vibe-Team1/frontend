@@ -132,9 +132,6 @@ const MyStocksModal = ({ onClose, onNavigate }) => {
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-        <ConnectionStatus isConnected={isConnected}>
-          {isConnected ? "실시간 연결됨" : connectionStatus}
-        </ConnectionStatus>
         <Title>내 주식</Title>
         <Content>
           <StockList>
