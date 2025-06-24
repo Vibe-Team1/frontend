@@ -192,7 +192,7 @@ const ShopModal = ({ onClose }) => {
   );
 
   const { cash, acorn } = useUserStore((state) => state.assets);
-  const { inventory, updateCash, setInventory, setAcorn } = useUserStore();
+  const { inventory, updateCash, setInventory, setAcorn, fetchCustomization } = useUserStore();
 
   const handleCartChange = (item, quantity) => {
     const isGachaItem = item.id.startsWith("random_");
@@ -311,11 +311,13 @@ const ShopModal = ({ onClose }) => {
             setIsConfirmOpen(false);
             setCart({});
             setResetKey((prev) => prev + 1);
+            // 티켓 뽑기 성공 시 캐릭터 리스트 즉시 최신화
+            fetchCustomization();
           }
         } else {
           setNotification(res.data?.error?.message || "뽑기 실패");
         }
-      } catch (e) {
+      } catch {
         setNotification("뽑기 API 호출 실패");
       }
       return;
