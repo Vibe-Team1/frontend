@@ -150,24 +150,6 @@ const characterItems = Array.from({ length: 12 }, (_, i) => {
   };
 });
 
-const costumeItems = [
-  // TODO: Add costume items here
-  {
-    id: "fancy_hat",
-    name: "멋진 모자",
-    description: "캐릭터에 멋진 모자를 씌웁니다.",
-    price: 50000,
-    icon: "🎩",
-  },
-  {
-    id: "cool_sunglasses",
-    name: "선글라스",
-    description: "캐릭터에 선글라스를 씌웁니다.",
-    price: 75000,
-    icon: "🕶️",
-  },
-];
-
 const gachaItems = [
   {
     id: "normal_ticket",
@@ -194,13 +176,12 @@ const gachaItems = [
 
 const itemLists = {
   character: characterItems,
-  costume: costumeItems,
   item: gachaItems,
 };
 
 const ShopModal = ({ onClose }) => {
   const [cart, setCart] = useState({});
-  const [activeTab, setActiveTab] = useState("character");
+  const [activeTab, setActiveTab] = useState("item");
   const [resetKey, setResetKey] = useState(0);
   const [notification, setNotification] = useState("");
   const [gachaResult, setGachaResult] = useState(null);
@@ -356,22 +337,16 @@ const ShopModal = ({ onClose }) => {
         <ModalContent>
           <LeftNav>
             <Tab
-              $active={activeTab === "character"}
-              onClick={() => setActiveTab("character")}
-            >
-              캐릭터
-            </Tab>
-            <Tab
-              $active={activeTab === "costume"}
-              onClick={() => setActiveTab("costume")}
-            >
-              의상
-            </Tab>
-            <Tab
               $active={activeTab === "item"}
               onClick={() => setActiveTab("item")}
             >
               아이템
+            </Tab>
+            <Tab
+              $active={activeTab === "character"}
+              onClick={() => setActiveTab("character")}
+            >
+              캐릭터
             </Tab>
           </LeftNav>
 
