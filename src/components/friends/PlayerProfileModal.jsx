@@ -132,7 +132,13 @@ const PlayerProfileModal = ({ player, onClose }) => {
   const [notification, setNotification] = useState("");
 
   const isAlreadyFriend =
-    player && friends.some((friend) => friend.id === player.id);
+    player &&
+    friends.some(
+      (friend) =>
+        friend.id === player.id ||
+        friend.userId === player.userId ||
+        friend.nickname === player.nickname
+    );
 
   const handleAddFriend = useCallback(async () => {
     if (!player) return;
@@ -144,7 +150,7 @@ const PlayerProfileModal = ({ player, onClose }) => {
       );
       fetchFriends();
     } else {
-      setNotification("친구 추가 실패");
+      setNotification(result.error || "친구 추가 실패");
     }
   }, [player, addFriendAsync, fetchFriends]);
 
@@ -152,6 +158,11 @@ const PlayerProfileModal = ({ player, onClose }) => {
     setNotification("");
     onClose();
   };
+
+  const displayName = player?.name || player?.nickname || "알 수 없음";
+  const displayProfitRate = player?.profitRate || 0;
+  const displayCash = player?.cash || 0;
+  const displayAvatar = player?.avatarUrl || "/characters/101.gif";
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -162,12 +173,12 @@ const PlayerProfileModal = ({ player, onClose }) => {
           <>
             <ProfileContent>
               <AvatarContainer>
-                <AvatarImage src={player.avatarUrl} alt={player.name} />
+                <AvatarImage src={displayAvatar} alt={displayName} />
               </AvatarContainer>
               <PlayerInfo>
-                <PlayerName>{player.name}</PlayerName>
-                <PlayerStats>수익률: {player.profitRate}%</PlayerStats>
-                <PlayerStats>자산: {player.cash.toLocaleString()}G</PlayerStats>
+                <PlayerName>{displayName}</PlayerName>
+                <PlayerStats>수익률: {displayProfitRate}%</PlayerStats>
+                <PlayerStats>자산: {displayCash.toLocaleString()}G</PlayerStats>
               </PlayerInfo>
             </ProfileContent>
             <AddFriendButton

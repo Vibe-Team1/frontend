@@ -119,58 +119,11 @@ const FriendList = styled.div`
   min-height: 0;
 `;
 
-// Dummy data for all players in the "game"
-const allPlayers = [
-  {
-    id: 1,
-    name: "주식왕초보",
-    profitRate: 15.78,
-    cash: 1250000,
-    avatarUrl: "/characters/101.gif",
-  },
-  {
-    id: 2,
-    name: "주식고수",
-    avatarUrl: "/characters/102.gif",
-    profitRate: 150,
-    cash: 2500000,
-  },
-  {
-    id: 3,
-    name: "타짜",
-    avatarUrl: "/characters/103.gif",
-    profitRate: 200,
-    cash: 5000000,
-  },
-  {
-    id: 4,
-    name: "상한가헌터",
-    avatarUrl: "/characters/104.gif",
-    profitRate: 300,
-    cash: 10000000,
-  },
-  {
-    id: 5,
-    name: "기관",
-    avatarUrl: "/characters/105.gif",
-    profitRate: 500,
-    cash: 100000000,
-  },
-  {
-    id: 6,
-    name: "외인",
-    avatarUrl: "/characters/106.gif",
-    profitRate: 1000,
-    cash: 1000000000,
-  },
-];
-
 const MyFriendsModal = ({ onClose }) => {
   const friends = useUserStore((state) => state.friends);
+  const users = useUserStore((state) => state.users);
   const fetchFriends = useUserStore((state) => state.fetchFriends);
-  // TODO: 전체 유저 목록 불러오기 (추후 구현)
-  // const allUsers = useUserStore((state) => state.allUsers);
-  // const fetchAllUsers = useUserStore((state) => state.fetchAllUsers);
+  const fetchAllUsers = useUserStore((state) => state.fetchAllUsers);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -178,24 +131,38 @@ const MyFriendsModal = ({ onClose }) => {
 
   useEffect(() => {
     fetchFriends();
-    // fetchAllUsers && fetchAllUsers();
-  }, [fetchFriends]);
+    fetchAllUsers();
+  }, [fetchFriends, fetchAllUsers]);
 
-  // TODO: 실제 전체 유저 목록에서 검색하도록 리팩토링 필요
+  // 실제 전체 유저 목록에서 검색
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) {
       setNotification("검색할 플레이어 이름을 입력하세요.");
       return;
     }
-    // const foundPlayer = allUsers.find(p => p.nickname && new RegExp(searchQuery, 'i').test(p.nickname));
-    // setSearchResult(foundPlayer);
-    // setIsProfileModalOpen(true);
-    // 임시: 기존 더미 데이터로 유지
+
     const searchRegex = new RegExp(searchQuery, "i");
-    const foundPlayer = allPlayers.find((p) => searchRegex.test(p.name));
-    setSearchResult(foundPlayer);
-    setIsProfileModalOpen(true);
-  }, [searchQuery]);
+    const foundPlayer = users.find(
+      (p) => p.nickname && searchRegex.test(p.nickname)
+    );
+
+    if (foundPlayer) {
+      // API 응답 형식에 맞게 데이터 변환
+      const playerData = {
+        id: foundPlayer.userId,
+        name: foundPlayer.nickname,
+        avatarUrl: "/characters/101.gif", // 기본 아바타
+        profitRate: 0, // 기본값
+        cash: 0, // 기본값
+        userId: foundPlayer.userId,
+        nickname: foundPlayer.nickname,
+      };
+      setSearchResult(playerData);
+      setIsProfileModalOpen(true);
+    } else {
+      setNotification("해당 플레이어를 찾을 수 없습니다.");
+    }
+  }, [searchQuery, users]);
 
   const handleCloseProfileModal = () => {
     setIsProfileModalOpen(false);

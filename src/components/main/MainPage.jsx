@@ -13,11 +13,14 @@ import MyPageModal from "../myPage/MyPageModal";
 import MyStocksModal from "../myStocks/MyStocksModal";
 import MyFriendsModal from "../friends/MyFriendsModal";
 import ShopModal from "../shop/ShopModal";
-// import mainBackground from "../../assets/main-background5.jpeg";
+import mainBackground from "../../assets/main-background3.png";
 import PlayerCharacter from "./PlayerCharacter";
 import addFriendIconUrl from "../../assets/addFriend.png";
 import stockIconUrl from "../../assets/stockIcon.png";
 import doorIconUrl from "../../assets/door.png";
+import dollarIconUrl from "../../assets/dollar.png";
+import shopIconUrl from "../../assets/shop.png";
+import settingIconUrl from "../../assets/setting.png";
 
 const MainContainer = styled.div`
   width: 100vw;
@@ -126,7 +129,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   };
 
   return (
-    <MainContainer backgroundImage={selectedTheme.background}>
+    <MainContainer backgroundImage={selectedTheme.background || mainBackground}>
       <TopSection>
         <div onClick={handleOpenMyPageModal}>
           <Profile />
@@ -147,12 +150,12 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
             onClick={handleOpenTradeModal}
           />
           <NavItem
-            iconUrl="/src/assets/dollar.png"
+            iconUrl={dollarIconUrl}
             label="내 주식"
             onClick={handleOpenMyStocksModal}
           />
           <NavItem
-            iconUrl="/src/assets/shop.png"
+            iconUrl={shopIconUrl}
             label="상점"
             onClick={handleOpenShopModal}
           />
@@ -165,7 +168,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
         <Chat />
         <NavContainer>
           <NavItem
-            iconUrl="/src/assets/setting.png"
+            iconUrl={settingIconUrl}
             label="설정"
             onClick={handleOpenSettingsModal}
           />

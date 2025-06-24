@@ -6,7 +6,13 @@ import {
   getUserStocks,
   getPortfolio,
 } from "../api/tradeApi";
-import { getMe, updateMe, getFriends, addFriend } from "../api/accountApi";
+import {
+  getMe,
+  updateMe,
+  getFriends,
+  addFriend,
+  getAllUsers,
+} from "../api/accountApi";
 
 const today = new Date();
 const initialGameDate = {
@@ -74,7 +80,7 @@ const useUserStore = create(
       },
       // 현재 선택된 테마 정보
       selectedTheme: {
-        background: "/src/assets/main-background3.png", // 기본 테마
+        background: null, // MainPage에서 기본 배경을 사용
       },
       // 캐릭터 변경 함수
       updateSelectedCharacter: (characterCode) =>
@@ -152,31 +158,12 @@ const useUserStore = create(
         })),
 
       // Friends
-      friends: [
-        {
-          id: 4,
-          name: "상한가헌터",
-          avatarUrl: "/characters/104.gif",
-          profitRate: 300,
-          cash: 10000000,
-        },
-        {
-          id: 5,
-          name: "기관",
-          avatarUrl: "/characters/105.gif",
-          profitRate: 500,
-          cash: 100000000,
-        },
-        {
-          id: 6,
-          name: "외인",
-          avatarUrl: "/characters/106.gif",
-          profitRate: 1000,
-          cash: 1000000000,
-        },
-      ],
+      friends: [],
       addFriend: (friend) =>
         set((state) => ({ friends: [...state.friends, friend] })),
+
+      // 전체 사용자 목록
+      users: [],
 
       // Transactions
       transactions: [],
@@ -349,7 +336,16 @@ const useUserStore = create(
           const response = await getFriends();
           // API 응답에 따라 friends 데이터 구조 맞춤
           const friendsData = response.data.data || [];
-          set({ friends: friendsData });
+          const formattedFriends = friendsData.map((friend) => ({
+            id: friend.userId,
+            userId: friend.userId,
+            name: friend.nickname,
+            nickname: friend.nickname,
+            avatarUrl: "/characters/101.gif", // 기본 아바타
+            profitRate: 0, // 기본값
+            cash: 0, // 기본값
+          }));
+          set({ friends: formattedFriends });
         } catch (error) {
           console.error("친구 목록 불러오기 실패:", error);
         }
@@ -369,7 +365,32 @@ const useUserStore = create(
           return { success: true };
         } catch (error) {
           console.error("친구 추가 실패:", error);
-          return { success: false, error };
+          let errorMessage = "친구 추가에 실패했습니다.";
+
+          if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response?.status === 409) {
+            errorMessage = "이미 친구 관계가 존재합니다.";
+          } else if (error.response?.status === 400) {
+            errorMessage = "자신을 친구로 추가할 수 없습니다.";
+          }
+
+          return { success: false, error: errorMessage };
+        }
+      },
+
+      // 전체 사용자 목록 조회 (API)
+      fetchAllUsers: async () => {
+        try {
+          const response = await getAllUsers();
+          const usersData = response.data.data || [];
+          const formattedUsers = usersData.map((user) => ({
+            userId: user.userId,
+            nickname: user.nickname,
+          }));
+          set({ users: formattedUsers });
+        } catch (error) {
+          console.error("전체 사용자 목록 조회 실패:", error);
         }
       },
     }),

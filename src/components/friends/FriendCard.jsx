@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const CardContainer = styled.div`
   background: #fdfaf4;
@@ -66,7 +66,7 @@ const Label = styled.span`
 
 const Value = styled.span`
   font-weight: bold;
-  color: ${props => props.color || '#5D4037'};
+  color: ${(props) => props.color || "#5D4037"};
 `;
 
 const ActionButton = styled.button`
@@ -87,24 +87,28 @@ const ActionButton = styled.button`
 `;
 
 const FriendCard = ({ friend }) => {
-  const { name, profitRate, cash, avatarUrl } = friend;
-  const profitColor = profitRate >= 0 ? '#0D47A1' : '#D32F2F';
+  const { name, nickname, profitRate, cash, avatarUrl } = friend;
+  const displayName = name || nickname || "알 수 없음";
+  const displayProfitRate = profitRate || 0;
+  const displayCash = cash || 0;
+  const displayAvatar = avatarUrl || "/characters/101.gif";
+  const profitColor = displayProfitRate >= 0 ? "#0D47A1" : "#D32F2F";
 
   return (
     <CardContainer>
       <TopSection>
         <AvatarContainer>
-          <Avatar src={avatarUrl} alt={name} />
+          <Avatar src={displayAvatar} alt={displayName} />
         </AvatarContainer>
         <InfoSection>
-          <FriendName>{name}</FriendName>
+          <FriendName>{displayName}</FriendName>
           <InfoRow>
             <Label>수익률</Label>
-            <Value color={profitColor}>{profitRate.toFixed(2)}%</Value>
+            <Value color={profitColor}>{displayProfitRate.toFixed(2)}%</Value>
           </InfoRow>
           <InfoRow>
             <Label>보유 현금</Label>
-            <Value>{cash.toLocaleString()}G</Value>
+            <Value>{displayCash.toLocaleString()}G</Value>
           </InfoRow>
         </InfoSection>
       </TopSection>
@@ -113,4 +117,4 @@ const FriendCard = ({ friend }) => {
   );
 };
 
-export default FriendCard; 
+export default FriendCard;

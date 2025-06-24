@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 
-const backgroundImage = "/src/assets/landing.jpg"; // 실제 경로로 수정 필요
+const backgroundImage = "/landing.jpg"; // CSS에서 사용하는 경로와 일치
 const gifImage = "/characters/101.gif"; // public 폴더 기준 경로
 const title = "슬라임 키우기 안녕하세요!";
 
