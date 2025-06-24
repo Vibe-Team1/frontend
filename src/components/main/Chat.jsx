@@ -1,4 +1,7 @@
-import styled from 'styled-components';
+import styled from "styled-components";
+import { useState } from "react";
+import useGuestbookStore from "../../store/useGuestbookStore";
+import GuestbookModal from "../guestbook/GuestbookModal";
 
 const ChatContainer = styled.div`
   background-color: #f3e9d3;
@@ -11,17 +14,38 @@ const ChatContainer = styled.div`
   font-family: monospace;
   flex-grow: 1;
   margin: 0 20px;
-  height: 100%;
+  height: 80%;
   display: flex;
   flex-direction: column;
 `;
 
-const ChatHeader = styled.h4`
+const ChatHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 0 0 10px 0;
-  text-align: center;
-  font-size: 1.5rem;
   padding-bottom: 10px;
   border-bottom: 2px dashed #c9b79c;
+`;
+
+const HeaderTitle = styled.h4`
+  margin: 0;
+  font-size: 1.5rem;
+`;
+
+const ViewAllButton = styled.button`
+  background-color: #8d6e63;
+  color: white;
+  border: 2px solid #5d4037;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #a1887f;
+  }
 `;
 
 const ChatMessages = styled.div`
@@ -30,9 +54,17 @@ const ChatMessages = styled.div`
   padding: 5px;
 `;
 
+const Message = styled.div`
+  background-color: #fff9e9;
+  border: 1px solid #c9b79c;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 8px;
+`;
+
 const ChatInputContainer = styled.div`
   display: flex;
-  margin-top: 10px;
+  margin-top: auto;
   gap: 10px;
 `;
 
@@ -59,25 +91,65 @@ const SendButton = styled.button`
   border-radius: 5px;
   font-weight: bold;
   transition: background-color 0.2s;
+  cursor: pointer;
 
   &:hover {
     background-color: #a1887f;
   }
 `;
 
-const Chat = () => {
+const Chat = ({ targetUserId = "currentUser" }) => {
+  const [message, setMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addMessage, getRecentMessages } = useGuestbookStore();
+
+  const recentMessages = getRecentMessages(targetUserId);
+
+  const handleSend = () => {
+    if (message.trim()) {
+      addMessage(targetUserId, {
+        id: Date.now(),
+        content: message,
+        timestamp: new Date().toISOString(),
+        author: "currentUser", // 실제 로그인된 사용자 ID로 대체해야 함
+      });
+      setMessage("");
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSend();
+    }
+  };
+
   return (
     <ChatContainer>
-      <ChatHeader>방명록</ChatHeader>
-      <ChatMessages>
-        {/* Messages will go here */}
-      </ChatMessages>
+      <ChatHeader>
+        <HeaderTitle>발자국 남기기</HeaderTitle>
+        <ViewAllButton onClick={() => setIsModalOpen(true)}>
+          전체보기
+        </ViewAllButton>
+      </ChatHeader>
       <ChatInputContainer>
-        <ChatInput type="text" placeholder="메시지를 입력하세요..." />
-        <SendButton>전송</SendButton>
+        <ChatInput
+          type="text"
+          placeholder="메시지를 입력하세요..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={handleKeyPress}
+        />
+        <SendButton onClick={handleSend}>전송</SendButton>
       </ChatInputContainer>
+      {isModalOpen && (
+        <GuestbookModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          targetUserId={targetUserId}
+        />
+      )}
     </ChatContainer>
   );
 };
 
-export default Chat; 
+export default Chat;
