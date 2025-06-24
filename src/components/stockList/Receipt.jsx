@@ -73,22 +73,18 @@ const PurchaseButton = styled.button`
   }
 `;
 
-const Receipt = ({ cart, onPurchase, mode = 'buy', isShop = false }) => {
+const Receipt = ({ cart, onPurchase, mode = "buy", isShop = false }) => {
   const cartItems = Object.values(cart);
 
-  const subtotal = cartItems.reduce((acc, current) => {
+  const total = cartItems.reduce((acc, current) => {
     return acc + current.item.price * current.quantity;
   }, 0);
 
-  const fee = isShop ? 0 : subtotal * 0.01;
-  const isBuyMode = mode === 'buy';
-  
-  // 매수는 수수료를 더하고, 매도는 수수료를 차감
-  const total = isBuyMode ? subtotal + fee : subtotal - fee;
+  const isBuyMode = mode === "buy";
 
   return (
     <ReceiptContainer>
-      <Title>{isBuyMode ? '구매 영수증' : '판매 영수증'}</Title>
+      <Title>{isBuyMode ? "구매 영수증" : "판매 영수증"}</Title>
       <ItemList>
         <HeaderRow>
           <span>물품명</span>
@@ -109,23 +105,16 @@ const Receipt = ({ cart, onPurchase, mode = 'buy', isShop = false }) => {
         ))}
       </ItemList>
       <TotalsSection>
-        {!isShop && (
-          <TotalRow>
-            <span>수수료 (1%)</span>
-            <span>
-              {isBuyMode ? '+' : '-'}
-              {fee.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </span>
-          </TotalRow>
-        )}
         <TotalRow>
-          <span>{isBuyMode ? '총 구매 금액' : '총 판매 금액'}</span>
+          <span>{isBuyMode ? "총 구매 금액" : "총 판매 금액"}</span>
           <span>
             {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </span>
         </TotalRow>
       </TotalsSection>
-      <PurchaseButton onClick={onPurchase}>{isBuyMode ? '구매' : '판매'}</PurchaseButton>
+      <PurchaseButton onClick={onPurchase}>
+        {isBuyMode ? "구매" : "판매"}
+      </PurchaseButton>
     </ReceiptContainer>
   );
 };
