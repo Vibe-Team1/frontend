@@ -13,7 +13,6 @@ import MyPageModal from "../myPage/MyPageModal";
 import MyStocksModal from "../myStocks/MyStocksModal";
 import MyFriendsModal from "../friends/MyFriendsModal";
 import ShopModal from "../shop/ShopModal";
-import mainBackground from "../../assets/main-background3.png";
 import PlayerCharacter from "./PlayerCharacter";
 import addFriendIconUrl from "../../assets/addFriend.png";
 import stockIconUrl from "../../assets/stockIcon.png";
@@ -79,8 +78,11 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const { initializeData } = useUserStore();
   const setGameDate = useUserStore((state) => state.updateGameDate);
 
-  // 배경 이미지 결정 (customization > selectedTheme > 기본 배경 순서)
-  const backgroundImage = customization.backgroundUrls?.[0] || selectedTheme.background || mainBackground;
+  // 배경 이미지 결정 (API 응답 > customization > selectedTheme > 기본 배경 순서)
+  const currentBackgroundCode = localStorage.getItem('currentBackgroundCode') || "01";
+  const apiBackground = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${currentBackgroundCode}.png`;
+  const defaultBackground = "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png";
+  const backgroundImage = apiBackground || customization.backgroundUrls?.[0] || selectedTheme.background || defaultBackground;
 
   // 앱 시작 시 백엔드에서 데이터 불러오기
   useEffect(() => {

@@ -156,7 +156,8 @@ const UserInfoPanel = () => {
       createdDate = user.createdAt.slice(0, 10).replace(/-/g, '.');
     }
   }
-  const avatar = user?.avatar || "/characters/1001.gif";
+  const currentCharacterCode = user?.profile?.currentCharacterCode || localStorage.getItem('currentCharacterCode') || "001";
+  const avatar = user?.avatar || `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
 
   // 대표 이미지 클릭 시 캐릭터/의상 변경 연동 (예: 커스터마이즈 패널 열기)
   const handleAvatarClick = () => {

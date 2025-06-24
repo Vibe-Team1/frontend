@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import useUserStore from '../../store/useUserStore';
 
@@ -48,6 +48,7 @@ const ItemGrid = styled.div`
 `;
 
 const ItemSlot = styled.div`
+
     aspect-ratio: 1 / 1;
     background-color: #eee;
     border-radius: 8px;
@@ -108,16 +109,33 @@ const generateCharacterCodes = () => {
 
 const characterCodes = generateCharacterCodes();
 
-// 테마 배경화면 배열
+// 테마 배경화면 배열 (S3 URL 사용)
 const themeBackgrounds = [
-  "/src/assets/main-background3.png",
-  "/src/assets/main-background5.jpeg"
+  "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png",
+  "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/02.png"
 ];
 
 const CustomizationPanel = () => {
   const [activeTab, setActiveTab] = useState('character');
-  const { updateSelectedCharacter, updateSelectedTheme, ownedCharacters } = useUserStore();
+  const { 
+    ownedCharacters, 
+    selectCustomizationAsync 
+  } = useUserStore();
   const [selectedItem, setSelectedItem] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  
+  // 현재 선택된 캐릭터와 테마 상태
+  const [currentCharacterCode, setCurrentCharacterCode] = useState("001");
+  const [currentBackgroundCode, setCurrentBackgroundCode] = useState("01");
+  
+  // 컴포넌트 마운트 시 현재 선택된 값들을 로컬 스토리지에서 가져오기
+  useEffect(() => {
+    const savedCharacterCode = localStorage.getItem('currentCharacterCode') || "001";
+    const savedBackgroundCode = localStorage.getItem('currentBackgroundCode') || "01";
+    setCurrentCharacterCode(savedCharacterCode);
+    setCurrentBackgroundCode(savedBackgroundCode);
+  }, []);
   
   // 캐릭터 이미지 경로 생성 함수
   const getCharacterImage = (characterCode) => {
@@ -133,14 +151,36 @@ const CustomizationPanel = () => {
   const ownedCharacterCodes = characterCodes.filter(code => isCharacterOwned(code));
   
   // 적용하기 함수
-  const handleApply = () => {
-    if (selectedItem) {
-      if (activeTab === 'character' || activeTab === 'myCharacter') {
-        updateSelectedCharacter(parseInt(selectedItem));
-      } else if (activeTab === 'theme') {
-        updateSelectedTheme(selectedItem);
+  const handleApply = async () => {
+    if (!selectedItem) return;
+    
+    setLoading(true);
+    setError("");
+    
+    let backgroundCode = currentBackgroundCode;
+    let characterCode = currentCharacterCode;
+    
+    if (activeTab === 'character' || activeTab === 'myCharacter') {
+      characterCode = selectedItem;
+    } else if (activeTab === 'theme') {
+      // S3 URL에서 backgroundCode 추출 (예: "01", "02")
+      backgroundCode = selectedItem.split('/').pop().replace('.png', '');
+    }
+    
+    try {
+      const result = await selectCustomizationAsync(backgroundCode, characterCode);
+      if (result.success) {
+        // 성공 시 현재 선택된 값들 업데이트
+        setCurrentCharacterCode(characterCode);
+        setCurrentBackgroundCode(backgroundCode);
+        setSelectedItem(null);
+      } else {
+        setError(result.error);
       }
-      setSelectedItem(null);
+    } catch {
+      setError("적용 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -207,7 +247,10 @@ const CustomizationPanel = () => {
         ))}
       </ItemGrid>
       <BottomBar>
-        <ApplyButton onClick={handleApply}>적용하기</ApplyButton>
+        {error && <div style={{ color: 'red', marginRight: '10px' }}>{error}</div>}
+        <ApplyButton onClick={handleApply} disabled={loading || !selectedItem}>
+          {loading ? "적용중..." : "적용하기"}
+        </ApplyButton>
       </BottomBar>
     </PanelContainer>
   );

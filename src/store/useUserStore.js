@@ -13,6 +13,7 @@ import {
   addFriend,
   getAllUsers,
   getCustomization,
+  selectCustomization,
 } from "../api/accountApi";
 
 const today = new Date();
@@ -81,7 +82,7 @@ const useUserStore = create(
       },
       // 현재 선택된 테마 정보
       selectedTheme: {
-        background: null, // MainPage에서 기본 배경을 사용
+        background: "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png", // 기본 배경을 S3 URL로 설정
       },
       // 커스터마이제이션 데이터
       customization: {
@@ -99,9 +100,7 @@ const useUserStore = create(
           selectedCharacter: { ...state.selectedCharacter, characterCode },
           user: {
             ...state.user,
-            avatar: `/characters/${characterCode}${state.selectedCharacter.costumeCode
-              .toString()
-              .padStart(2, "0")}.gif`,
+            avatar: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode.toString().padStart(3, '0')}.gif`,
           },
         })),
       // 의상 변경 함수
@@ -110,16 +109,17 @@ const useUserStore = create(
           selectedCharacter: { ...state.selectedCharacter, costumeCode },
           user: {
             ...state.user,
-            avatar: `/characters/${
-              state.selectedCharacter.characterCode
-            }${costumeCode.toString().padStart(2, "0")}.gif`,
+            avatar: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${state.selectedCharacter.characterCode.toString().padStart(3, '0')}.gif`,
           },
         })),
       // 테마 변경 함수
-      updateSelectedTheme: (background) =>
+      updateSelectedTheme: (backgroundCode) => {
+        const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${backgroundCode}.png`;
+        localStorage.setItem('currentBackgroundCode', backgroundCode);
         set((state) => ({
           selectedTheme: { ...state.selectedTheme, background },
-        })),
+        }));
+      },
 
       // Vehicle
       vehicleLevel: 0, // 0: 손수레, 1: 자전거, ...
@@ -311,8 +311,24 @@ const useUserStore = create(
         try {
           const response = await getMe();
           const userData = response.data.data;
-          const avatar = "/characters/101.gif";
-          set({ user: { ...userData, avatar } });
+          const currentCharacterCode = userData.profile?.currentCharacterCode || "001";
+          const currentBackgroundCode = userData.profile?.currentBackgroundCode || "01";
+          const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
+          const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${currentBackgroundCode}.png`;
+          set({ 
+            user: { ...userData, avatar },
+            selectedCharacter: { 
+              characterCode: parseInt(currentCharacterCode), 
+              costumeCode: 1 
+            },
+            selectedTheme: {
+              background: background
+            }
+          });
+          
+          // currentCharacterCode와 currentBackgroundCode를 로컬 스토리지에 저장
+          localStorage.setItem('currentCharacterCode', currentCharacterCode);
+          localStorage.setItem('currentBackgroundCode', currentBackgroundCode);
         } catch (error) {
           console.error("유저 정보 조회 실패:", error);
           set({ user: null });
@@ -331,6 +347,40 @@ const useUserStore = create(
           set({ ownedCharacters: ownedChars });
         } catch (error) {
           console.error("커스터마이제이션 데이터 조회 실패:", error);
+        }
+      },
+
+      // 캐릭터 및 테마 선택 API 호출
+      selectCustomizationAsync: async (backgroundCode, characterCode) => {
+        try {
+          await selectCustomization({
+            backgroundCode,
+            characterCode
+          });
+          
+          // 성공 시 로컬 상태 업데이트
+          const background = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${backgroundCode}.png`;
+          const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${characterCode}.gif`;
+          
+          set((state) => ({
+            user: { ...state.user, avatar },
+            selectedCharacter: { 
+              characterCode: parseInt(characterCode), 
+              costumeCode: 1 
+            },
+            selectedTheme: {
+              background: background
+            }
+          }));
+          
+          // 로컬 스토리지 업데이트
+          localStorage.setItem('currentCharacterCode', characterCode);
+          localStorage.setItem('currentBackgroundCode', backgroundCode);
+          
+          return { success: true };
+        } catch (error) {
+          console.error("커스터마이제이션 선택 실패:", error);
+          return { success: false, error: error.response?.data?.message || "선택에 실패했습니다." };
         }
       },
 
