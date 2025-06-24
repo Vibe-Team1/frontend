@@ -5,8 +5,9 @@ import "./LandingPage.css";
 
 const backgroundImage = "/landing.jpg"; // CSS에서 사용하는 경로와 일치
 const gifImage = "/characters/101.gif"; // public 폴더 기준 경로
-const title = "슬라임 키우기 안녕하세요!";
+
 const GOOGLE_OAUTH_URL = 'http://finland.r-e.kr:8080/oauth2/authorization/google';
+const title = " Fin Land ";
 
 export default function LandingPage() {
   useEffect(() => {
@@ -22,11 +23,27 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="landing-background">
-      <div className="landing-content">
-        <h1 className="landing-title">{title}</h1>
-        <img src={gifImage} alt="캐릭터" className="landing-gif" />
-        <p className="landing-tip">아무 키나 눌러 시작하세요</p>
+    <div className="landing-container">
+      <div className="snowflakes" aria-hidden="true">
+        <div className="snowflake">❅</div>
+        <div className="snowflake">❆</div>
+        <div className="snowflake">❅</div>
+        <div className="snowflake">❆</div>
+        <div className="snowflake">❅</div>
+        <div className="snowflake">❆</div>
+        <div className="snowflake">❅</div>
+        <div className="snowflake">❆</div>
+        <div className="snowflake">❅</div>
+        <div className="snowflake">❆</div>
+        <div className="snowflake">❅</div>
+        <div className="snowflake">❆</div>
+      </div>
+      <div className="landing-background">
+        <div className="landing-content">
+          <h1 className="landing-title">{title}</h1>
+          <img src={gifImage} alt="캐릭터" className="landing-gif" />
+          <p className="landing-tip">아무 키나 눌러 시작하세요</p>
+        </div>
       </div>
     </div>
   );

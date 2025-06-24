@@ -28,8 +28,8 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  width: 90%;
-  max-width: 1400px;
+  width: 95%;
+  max-width: 1600px;
   height: 85%;
   background-color: #f3e9d3;
   border: 10px solid #4a2e2a;
@@ -41,6 +41,10 @@ const ModalContainer = styled.div`
   font-family: monospace;
   color: #5d4037;
   animation: ${scaleUp} 0.25s ease-out forwards;
+
+  @media (max-width: 1400px) {
+    width: 98%;
+  }
 `;
 
 const Title = styled.h2`
@@ -75,35 +79,20 @@ const CloseButton = styled.button`
 
 const Content = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: calc(100% - 80px);
   gap: 25px;
-`;
-
-const NavigateButton = styled.button`
-  padding: 15px 25px;
-  border: 4px solid #a1887f;
-  background: #f3e9d3;
-  border-radius: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #5d4037;
-  height: fit-content;
-  align-self: flex-start;
-
-  &:hover {
-    background: #e0d0b8;
-  }
 `;
 
 const StockList = styled.div`
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
   overflow-y: auto;
   align-content: flex-start;
-  padding: 5px 15px 5px 5px;
+  padding: 15px;
+  margin-bottom: 20px;
 `;
 
 const ConnectionStatus = styled.div`
@@ -118,6 +107,23 @@ const ConnectionStatus = styled.div`
   color: white;
 `;
 
+const NavigateButton = styled.button`
+  padding: 15px 25px;
+  border: 4px solid #a1887f;
+  background: #f3e9d3;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #5d4037;
+  width: fit-content;
+  margin: 0 auto;
+  cursor: pointer;
+
+  &:hover {
+    background: #e0d0b8;
+  }
+`;
+
 const MyStocksModal = ({ onClose, onNavigate }) => {
   const { stocks } = useUserStore((state) => state.assets);
   const { getStockByName, isConnected, connectionStatus } = useStockStore();
@@ -126,9 +132,6 @@ const MyStocksModal = ({ onClose, onNavigate }) => {
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-        <ConnectionStatus isConnected={isConnected}>
-          {isConnected ? "실시간 연결됨" : connectionStatus}
-        </ConnectionStatus>
         <Title>내 주식</Title>
         <Content>
           <StockList>

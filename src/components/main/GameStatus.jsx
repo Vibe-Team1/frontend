@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import useUserStore from "../../store/useUserStore";
-import sunIconUrl from "../../assets/sun.png";
+import sunIconUrl from "../../assets/rain.png";
 import coinIconUrl from "../../assets/coin.png";
 import gemIconUrl from "../../assets/acorn.png";
 
@@ -46,7 +46,6 @@ const SunIcon = styled.div`
   background-repeat: no-repeat;
   background-position: center;
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 `;
 
 const WeatherText = styled.span`
@@ -87,7 +86,7 @@ const GameStatus = () => {
     <GameStatusContainer>
       <WeatherContainer>
         <SunIcon />
-        <WeatherText>맑음</WeatherText>
+        <WeatherText>비,구름</WeatherText>
       </WeatherContainer>
       <StatusRight>
         <DateText>{formatted}</DateText>
