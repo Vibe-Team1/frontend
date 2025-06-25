@@ -1,9 +1,8 @@
 import styled from "styled-components";
-import { useState } from "react";
-import useGuestbookStore from "../../store/useGuestbookStore";
-import GuestbookModal from "../guestbook/GuestbookModal";
+import { useState, useEffect } from "react";
+import axios from "../../api/axiosInstance";
 
-const ChatContainer = styled.div`
+const NewsContainer = styled.div`
   background-color: #f3e9d3;
   border: 7px solid #4a2e2a;
   border-radius: 12px;
@@ -19,7 +18,7 @@ const ChatContainer = styled.div`
   flex-direction: column;
 `;
 
-const ChatHeader = styled.div`
+const NewsHeader = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 0 0 10px 0;
@@ -29,127 +28,76 @@ const ChatHeader = styled.div`
 
 const HeaderTitle = styled.h4`
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
 `;
 
-const ViewAllButton = styled.button`
-  margin-left: 16px;
-  background-color: #8d6e63;
-  color: white;
-  border: 2px solid #5d4037;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.2s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #a1887f;
-  }
-`;
-
-const ChatMessages = styled.div`
+const NewsContent = styled.div`
   flex-grow: 1;
   overflow-y: auto;
-  padding: 5px;
-`;
-
-const Message = styled.div`
+  padding: 3px;
   background-color: #fff9e9;
   border: 1px solid #c9b79c;
   border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 8px;
 `;
 
-const ChatInputContainer = styled.div`
-  display: flex;
-  margin-top: auto;
-  gap: 10px;
-`;
+const NewsItem = styled.div`
+  padding: 15px;
+  margin-bottom: 7px;
+  background-color: white;
+  border: 1px solid #c9b79c;
+  border-radius: 8px;
 
-const ChatInput = styled.input`
-  flex-grow: 1;
-  border: 2px solid #c9b79c;
-  background-color: #fff9e9;
-  border-radius: 5px;
-  padding: 10px;
-  font-family: monospace;
-  font-size: 1rem;
-  color: #5d4037;
-
-  &::placeholder {
-    color: #a1887f;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
-const SendButton = styled.button`
-  background-color: #8d6e63;
-  color: white;
-  border: 2px solid #5d4037;
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.2s;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #a1887f;
-  }
+const NewsSummary = styled.p`
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  color: #4a2e2a;
 `;
 
-const Chat = ({ targetUserId = "currentUser" }) => {
-  const [message, setMessage] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { addMessage, getRecentMessages } = useGuestbookStore();
+const News = () => {
+  const [news, setNews] = useState([]);
 
-  const recentMessages = getRecentMessages(targetUserId);
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get("/api/v1/news");
+        if (response.data.success) {
+          setNews(response.data.data);
+        }
+      } catch (error) {
+        console.error("뉴스를 불러오는데 실패했습니다:", error);
+      }
+    };
 
-  const handleSend = () => {
-    if (message.trim()) {
-      addMessage(targetUserId, {
-        id: Date.now(),
-        content: message,
-        timestamp: new Date().toISOString(),
-        author: "currentUser", // 실제 로그인된 사용자 ID로 대체해야 함
-      });
-      setMessage("");
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSend();
-    }
-  };
+    fetchNews();
+    // 1분마다 뉴스 새로고침
+    const interval = setInterval(fetchNews, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <ChatContainer>
-      <ChatHeader>
-        <HeaderTitle>발자국 남기기</HeaderTitle>
-        <ViewAllButton onClick={() => setIsModalOpen(true)}>
-          전체보기
-        </ViewAllButton>
-      </ChatHeader>
-      <ChatInputContainer>
-        <ChatInput
-          type="text"
-          placeholder="메시지를 입력하세요..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
-        <SendButton onClick={handleSend}>전송</SendButton>
-      </ChatInputContainer>
-      {isModalOpen && (
-        <GuestbookModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          targetUserId={targetUserId}
-        />
-      )}
-    </ChatContainer>
+    <NewsContainer>
+      <NewsHeader>
+        <HeaderTitle>최신 뉴스</HeaderTitle>
+      </NewsHeader>
+      <NewsContent>
+        {news.map((item) => (
+          <NewsItem key={item.id}>
+            <NewsSummary>{item.summary}</NewsSummary>
+          </NewsItem>
+        ))}
+        {news.length === 0 && (
+          <NewsItem>
+            <NewsSummary>현재 표시할 뉴스가 없습니다.</NewsSummary>
+          </NewsItem>
+        )}
+      </NewsContent>
+    </NewsContainer>
   );
 };
 
-export default Chat;
+export default News;
