@@ -20,12 +20,12 @@ const useStockStore = create((set, get) => ({
 
   // 주식 코드와 이미지 매핑 (6개 종목만)
   stockCodeToImage: {
-    "005930": "/src/assets/stockIcon/005930.png",
-    "000660": "/src/assets/stockIcon/000660.png",
-    "035420": "/src/assets/stockIcon/035420.png",
-    105560: "/src/assets/stockIcon/105560.png",
-    181710: "/src/assets/stockIcon/181710.png",
-    "003550": "/src/assets/stockIcon/003550.png",
+    "005930": "/stockIcon/005930.png",
+    "000660": "/stockIcon/000660.png",
+    "035420": "/stockIcon/035420.png",
+    "105560": "/stockIcon/105560.png",
+    "181710": "/stockIcon/181710.png",
+    "003550": "/stockIcon/003550.png",
   },
 
   // 액션들

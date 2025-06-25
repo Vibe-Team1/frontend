@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import useUserStore from "../../store/useUserStore";
+import { getOtherUserByNickname } from "../../api/accountApi";
 
 const CardContainer = styled.div`
   background: #fdfaf4;
@@ -87,11 +89,48 @@ const ActionButton = styled.button`
 `;
 
 const FriendCard = ({ friend }) => {
-  const { name, nickname, characterCount, cash, avatarUrl } = friend;
+  const { name, nickname, characterCount, cash, avatarUrl, userId } = friend;
+  const { setVisitingUser } = useUserStore();
   const displayName = name || nickname || "알 수 없음";
   const displayCharacterCount = characterCount || 0;
   const displayCash = cash || 0;
   const displayAvatar = avatarUrl || "/characters/101.gif";
+
+  const handleVisit = async () => {
+    try {
+      // 새로운 API로 상대방 정보 조회
+      const response = await getOtherUserByNickname(displayName);
+      const data = response.data.data;
+      if (data) {
+        // characterCodes 배열로 캐릭터 이미지 배열 생성 (S3 URL 변환)
+        const characterUrls = (data.characterCodes || [data.currentCharacterCode || "001"]).map(
+          code => `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${code}.gif`
+        );
+        const backgroundUrl = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${data.currentBackgroundCode || '01'}.png`;
+        const visitingUserData = {
+          id: data.userId,
+          userId: data.userId,
+          nickname: data.nickname,
+          name: data.nickname,
+          characterCount: (data.characterCodes && data.characterCodes.length) || 0,
+          cash: data.balance || 0,
+          currentCharacterCode: data.currentCharacterCode || "001",
+          currentBackgroundCode: data.currentBackgroundCode || "01",
+          avatarUrl: `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${data.currentCharacterCode || '001'}.gif`,
+          backgroundUrl,
+          customization: {
+            characterUrls,
+            backgroundUrls: [backgroundUrl]
+          }
+        };
+        setVisitingUser(visitingUserData);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("상대방 정보 조회 실패:", error);
+      alert("상대방 정보를 불러오는데 실패했습니다.");
+    }
+  };
 
   return (
     <CardContainer>
@@ -111,7 +150,7 @@ const FriendCard = ({ friend }) => {
           </InfoRow>
         </InfoSection>
       </TopSection>
-      <ActionButton>이동하기</ActionButton>
+      <ActionButton onClick={handleVisit}>이동하기</ActionButton>
     </CardContainer>
   );
 };

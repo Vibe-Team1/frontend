@@ -121,7 +121,9 @@ const CustomizationPanel = () => {
   const [activeTab, setActiveTab] = useState('character');
   const { 
     ownedCharacters, 
-    selectCustomizationAsync 
+    selectCustomizationAsync,
+    fetchMe,
+    user
   } = useUserStore();
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -155,27 +157,27 @@ const CustomizationPanel = () => {
   // 적용하기 함수
   const handleApply = async () => {
     if (!selectedItem) return;
-    
     setLoading(true);
     setError("");
-    
-    let backgroundCode = currentBackgroundCode;
-    let characterCode = currentCharacterCode;
-    
+    // 항상 최신값을 user에서 가져옴
+    const userCharacterCode = user?.currentCharacterCode || user?.profile?.currentCharacterCode || localStorage.getItem('currentCharacterCode') || "001";
+    const userBackgroundCode = user?.currentBackgroundCode || user?.profile?.currentBackgroundCode || localStorage.getItem('currentBackgroundCode') || "01";
+    let backgroundCode = userBackgroundCode;
+    let characterCode = userCharacterCode;
     if (activeTab === 'character' || activeTab === 'myCharacter') {
       characterCode = selectedItem;
+      backgroundCode = userBackgroundCode; // 기존 배경 유지
     } else if (activeTab === 'theme') {
-      // S3 URL에서 backgroundCode 추출 (예: "01", "02")
-      backgroundCode = selectedItem.split('/').pop().replace('.png', '');
+      backgroundCode = selectedItem.split('/').pop().replace('.png', '').replace('.jpeg', '');
+      characterCode = userCharacterCode; // 기존 캐릭터 유지
     }
-    
     try {
       const result = await selectCustomizationAsync(backgroundCode, characterCode);
       if (result.success) {
-        // 성공 시 현재 선택된 값들 업데이트
         setCurrentCharacterCode(characterCode);
         setCurrentBackgroundCode(backgroundCode);
         setSelectedItem(null);
+        await fetchMe();
       } else {
         setError(result.error);
       }

@@ -49,9 +49,12 @@ const ProfileName = styled.p`
 
 const Profile = () => {
     const { user } = useUserStore();
-    const name = user?.nickname || "닉네임 없음";
-    const currentCharacterCode = user?.profile?.currentCharacterCode || localStorage.getItem('currentCharacterCode') || "001";
-    const avatar = user?.avatar || `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
+    
+    const name = user?.nickname || user?.name || "닉네임 없음";
+    // currentCharacterCode 우선 사용, 없으면 profile?.currentCharacterCode, 없으면 localStorage
+    const currentCharacterCode = user?.currentCharacterCode || user?.profile?.currentCharacterCode || localStorage.getItem('currentCharacterCode') || "001";
+    const avatar = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/char/${currentCharacterCode}.gif`;
+      
   return (
     <ProfileContainer>
       <AvatarContainer>

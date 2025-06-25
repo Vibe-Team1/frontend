@@ -188,6 +188,22 @@ const useUserStore = create(
       addFriend: (friend) =>
         set((state) => ({ friends: [...state.friends, friend] })),
 
+      // 상대방 방문 정보
+      visitingUser: null,
+      setVisitingUser: (userData) => {
+        set({ visitingUser: userData });
+        // localStorage에 상대방 정보 저장
+        localStorage.setItem('visitingUser', JSON.stringify(userData));
+      },
+      clearVisitingUser: () => {
+        set({ visitingUser: null });
+        localStorage.removeItem('visitingUser');
+      },
+      getVisitingUser: () => {
+        const stored = localStorage.getItem('visitingUser');
+        return stored ? JSON.parse(stored) : null;
+      },
+
       // 전체 사용자 목록
       users: [],
 
@@ -245,7 +261,7 @@ const useUserStore = create(
             name: stock.stockName,
             quantity: stock.quantity,
             avgBuyPrice: stock.averagePrice,
-            imageUrl: `/src/assets/stockIcon/${stock.stockCode}.png`,
+            imageUrl: `/stockIcon/${stock.stockCode}.png`,
             stockCode: stock.stockCode,
           }));
 

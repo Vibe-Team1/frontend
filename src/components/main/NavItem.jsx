@@ -23,7 +23,9 @@ const NavItemContainer = styled.div`
   }
 `;
 
-const Icon = styled.div`
+const Icon = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'iconUrl',
+})`
   width: 70px;
   height: 70px;
   background-color: ${(props) => (props.iconUrl ? 'transparent' : 'rgba(0,0,0,0.1)')};

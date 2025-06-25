@@ -92,7 +92,7 @@ const ShopItemCard = ({ item, onCartChange, maxQuantity, disabled, disablePlus }
     onCartChange(item, newQuantity);
   };
   
-  const isImageUrl = typeof item.icon === 'string' && item.icon.startsWith('/');
+  const isImageUrl = typeof item.icon === 'string' && (item.icon.startsWith('/') || item.icon.startsWith('https://'));
 
   return (
     <Card>

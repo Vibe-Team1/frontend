@@ -81,6 +81,14 @@ const AssetText = styled.span`
 const GameStatus = () => {
   const { cash, acorn } = useUserStore((state) => state.assets);
   const { formatted } = useUserStore((state) => state.gameDate);
+  const visitingUser = useUserStore((state) => state.visitingUser);
+  
+  // 상대방 방문 중인지 확인
+  const isVisiting = visitingUser !== null;
+  
+  // 사용할 자산 정보 결정 (상대방 방문 > 내 정보)
+  const currentCash = isVisiting ? (visitingUser?.cash || 0) : (cash || 0);
+  const currentAcorn = isVisiting ? 0 : (acorn || 0); // 상대방의 도토리는 표시하지 않음
 
   return (
     <GameStatusContainer>
@@ -93,12 +101,14 @@ const GameStatus = () => {
         <AssetsRow>
           <div style={{ display: "flex", alignItems: "center" }}>
             <AssetIcon src={coinIconUrl} alt="코인" />
-            <AssetText>{cash?.toLocaleString()}</AssetText>
+            <AssetText>{currentCash?.toLocaleString()}</AssetText>
           </div>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <AssetIcon src={gemIconUrl} alt="도토리" />
-            <AssetText>{acorn?.toLocaleString()}</AssetText>
-          </div>
+          {!isVisiting && (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <AssetIcon src={gemIconUrl} alt="도토리" />
+              <AssetText>{currentAcorn?.toLocaleString()}</AssetText>
+            </div>
+          )}
         </AssetsRow>
       </StatusRight>
     </GameStatusContainer>

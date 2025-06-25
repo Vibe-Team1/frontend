@@ -21,7 +21,9 @@ import dollarIconUrl from "../../assets/dollar.png";
 import shopIconUrl from "../../assets/shop.png";
 import settingIconUrl from "../../assets/setting.png";
 
-const MainContainer = styled.div`
+const MainContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'backgroundImage',
+})`
   width: 100vw;
   height: 100vh;
   background-image: url(${(props) => props.backgroundImage});
@@ -67,6 +69,9 @@ const BottomNav = styled.nav`
 const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const selectedTheme = useUserStore((state) => state.selectedTheme);
   const customization = useUserStore((state) => state.customization);
+  const visitingUser = useUserStore((state) => state.visitingUser);
+  const getVisitingUser = useUserStore((state) => state.getVisitingUser);
+  const clearVisitingUser = useUserStore((state) => state.clearVisitingUser);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
@@ -77,31 +82,65 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   const navigate = useNavigate();
   const { initializeData } = useUserStore();
   const setGameDate = useUserStore((state) => state.updateGameDate);
+  const [showVillageBanner, setShowVillageBanner] = useState(true);
+  const [fadeVillageBanner, setFadeVillageBanner] = useState(false);
+  const user = useUserStore((state) => state.user);
 
-  // 배경 이미지 결정 (API 응답 > customization > selectedTheme > 기본 배경 순서)
-  const currentBackgroundCode = localStorage.getItem('currentBackgroundCode') || "01";
-  const apiBackground = `https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/${currentBackgroundCode}.png`;
-  const defaultBackground = "https://cy-stock-s3.s3.ap-northeast-2.amazonaws.com/map/01.png";
-  const backgroundImage = apiBackground || customization.backgroundUrls?.[0] || selectedTheme.background || defaultBackground;
+  // 상대방 방문 정보 확인
+  useEffect(() => {
+    const storedVisitingUser = getVisitingUser();
+    if (storedVisitingUser && !visitingUser) {
+      // localStorage에서 상대방 정보를 store에 복원
+      useUserStore.getState().setVisitingUser(storedVisitingUser);
+    }
+  }, [getVisitingUser, visitingUser]);
 
-  // 앱 시작 시 백엔드에서 데이터 불러오기
+  // 상대방 방문 중인지 확인
+  const isVisiting = visitingUser !== null;
+  const myBackgroundCode = isVisiting
+    ? visitingUser.currentBackgroundCode || "01"
+    : user?.currentBackgroundCode || "01";
+  const myBackground = myBackgroundCode === "02" ? "/background/02.png" : "/background/01.jpeg";
+  const defaultBackground = "/background/01.jpeg";
+  
+  const backgroundImage = isVisiting 
+    ? visitingUser.backgroundUrl || defaultBackground
+    : myBackground || customization.backgroundUrls?.[0] || selectedTheme.background || defaultBackground;
+
+  // 앱 시작 시 백엔드에서 데이터 불러오기 (상대방 방문 중이 아닐 때만)
   useEffect(() => {
     const loadInitialData = async () => {
-      try {
-        await initializeData();
-      } catch (error) {
-        console.error("초기 데이터 로드 실패:", error);
+      if (!isVisiting) {
+        try {
+          await initializeData();
+        } catch (error) {
+          console.error("초기 데이터 로드 실패:", error);
+        }
       }
     };
 
     loadInitialData();
-  }, [initializeData]);
+  }, [initializeData, isVisiting]);
 
   // 앱 시작 시 항상 오늘 날짜로 gameDate를 덮어쓰기
   useEffect(() => {
     const today = new Date();
     setGameDate(today.getFullYear(), today.getMonth() + 1, today.getDate());
   }, [setGameDate]);
+
+  // 방문 배너 효과: 3초 후 fade-out, 1.5초 후 완전 사라짐
+  useEffect(() => {
+    if (isVisiting) {
+      setShowVillageBanner(true);
+      setFadeVillageBanner(false);
+      const fadeTimer = setTimeout(() => setFadeVillageBanner(true), 3000);
+      const hideTimer = setTimeout(() => setShowVillageBanner(false), 4500);
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [isVisiting, visitingUser?.nickname]);
 
   const handleOpenTradeModal = () => setIsTradeModalOpen(true);
   const handleCloseTradeModal = () => setIsTradeModalOpen(false);
@@ -130,11 +169,42 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
   };
 
   const handleConfirmExit = () => {
-    navigate("/"); // Go back to landing page
+    if (isVisiting) {
+      // 상대방 방문 중이면 내 페이지로 돌아가기
+      clearVisitingUser();
+      window.location.reload();
+    } else {
+      // 내 페이지에서 나가기
+      navigate("/");
+    }
   };
 
   return (
     <MainContainer backgroundImage={backgroundImage}>
+      {isVisiting && showVillageBanner && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '12%',
+            left: '50%',
+            transform: 'translate(-50%, 0)',
+            fontSize: '3.2rem',
+            fontWeight: 'bold',
+            color: '#ffb347',
+            textShadow: '2px 2px 8px #000, 0 0 20px #8d6e63',
+            zIndex: 2000,
+            letterSpacing: '2px',
+            fontFamily: 'DNFBitBitv2, sans-serif',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            opacity: fadeVillageBanner ? 0 : 1,
+            transition: 'opacity 1.5s',
+          }}
+        >
+          {visitingUser?.nickname} 님의 마을에 방문하셨습니다.
+        </div>
+      )}
+      
       <TopSection>
         <div onClick={handleOpenMyPageModal}>
           <Profile />
@@ -179,7 +249,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
           />
           <NavItem
             iconUrl={doorIconUrl}
-            label="나가기"
+            label={isVisiting ? "돌아가기" : "나가기"}
             onClick={handleOpenExitModal}
           />
         </NavContainer>
@@ -206,7 +276,7 @@ const MainPage = ({ isMusicPlaying, playMusic, pauseMusic }) => {
       )}
       {isExitModalOpen && (
         <ConfirmModal
-          message="정말로 나가시겠습니까?"
+          message={isVisiting ? "내 페이지로 돌아가시겠습니까?" : "정말로 나가시겠습니까?"}
           onConfirm={handleConfirmExit}
           onCancel={handleCloseExitModal}
         />

@@ -76,9 +76,18 @@ const Character = ({ characterUrl, index }) => {
 const PlayerCharacter = () => {
   const user = useUserStore((state) => state.user);
   const customization = useUserStore((state) => state.customization);
+  const visitingUser = useUserStore((state) => state.visitingUser);
   const avatar = user?.avatar || "/characters/101.gif";
   const [position, setPosition] = useState({ top: "50%", left: "50%" });
   const [direction, setDirection] = useState("left");
+
+  // 상대방 방문 중인지 확인
+  const isVisiting = visitingUser !== null;
+  
+  // 사용할 캐릭터 정보 결정 (상대방 방문 > 내 정보)
+  const currentUser = isVisiting ? visitingUser : user;
+  const currentCustomization = isVisiting ? visitingUser.customization : customization;
+  const currentAvatar = isVisiting ? visitingUser.avatarUrl : avatar;
 
   useEffect(() => {
     const moveCharacter = () => {
@@ -103,8 +112,10 @@ const PlayerCharacter = () => {
   console.log("PlayerCharacter rendering with:", {
     position,
     direction,
-    avatar,
-    characterUrls: customization.characterUrls,
+    avatar: currentAvatar,
+    characterUrls: currentCustomization?.characterUrls,
+    isVisiting,
+    visitingUser
   });
 
   return (
@@ -115,17 +126,18 @@ const PlayerCharacter = () => {
         left={position.left}
         direction={direction}
       >
-        <img src={avatar} alt="Player Character" />
+        <img src={currentAvatar} alt="Player Character" />
       </CharacterContainer> */}
       
       {/* 보유한 모든 캐릭터들 */}
-      {customization.characterUrls && customization.characterUrls.slice(-5).map((characterUrl, index) => (
+      {currentCustomization?.characterUrls && currentCustomization.characterUrls.slice(-5).map((characterUrl, index) => (
         <Character 
           key={`character-${index}`} 
           characterUrl={characterUrl} 
           index={index} 
         />
       ))}
+      
     </>
   );
 };
