@@ -29,6 +29,11 @@ const floatBack = keyframes`
   }
 `;
 
+const silverShine = keyframes`
+  0% { filter: blur(1px) brightness(1.2) hue-rotate(0deg); }
+  100% { filter: blur(1px) brightness(1.2) hue-rotate(360deg); }
+`;
+
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -67,8 +72,9 @@ const CardFace = styled.div`
 
 const CardBack = styled(CardFace)`
   animation: ${float} 5s infinite ease-in-out;
-  border: 8px solid black;
+  border: 8px solid #222;
   
+  box-shadow: 0 0 24px 4px #ff980088, 0 2px 16px #ff980044;
   p {
     color: black;
     font-size: 5rem;
@@ -83,20 +89,33 @@ const CardFront = styled(CardFace)`
   border: 8px solid ${({ rarity }) => {
     switch (rarity) {
       case 'epic': return 'purple';
-      case 'legendary': return 'gold';
-      default: return 'gray';
+      case 'legendary': return '#ff9800';
+      default: return 'black';
     }
   }};
+  // background: linear-gradient(135deg, #fffbe7 60%, #ffe0b2 100%);
+  box-shadow: 0 0 24px 4px #ff980088, 0 2px 16px #ff980044;
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border-radius: 16px;
+    pointer-events: none;
+    // background: radial-gradient(circle at 60% 30%, #fffde4cc 0%, transparent 70%);
+    z-index: 1;
+  }
 `;
 
 const Rank = styled.p`
   color: ${({ rarity }) => {
     switch (rarity) {
       case 'epic': return 'purple';
-      case 'legendary': return 'gold';
+      case 'legendary': return '#ff9800';
       default: return 'gray';
     }
   }};
+  color: #ff980088;
   font-size: 2rem;
   font-weight: bold;
   margin: 0;
@@ -105,6 +124,7 @@ const Rank = styled.p`
 const RewardImageContainer = styled.div`
   height: 60%;
   display: flex; justify-content: center; align-items: center;
+  // filter: drop-shadow(0 0 16px #ff9800aa) drop-shadow(0 0 8px #fff17688);
 `;
 
 const RewardImage = styled.img`
@@ -113,7 +133,7 @@ const RewardImage = styled.img`
 
 const RewardNameContainer = styled.div`
   margin: 0;
-  border: 1.2px solid black;
+
   width: 100%;
   height: 10%;
   background-color: rgba(255, 255, 255, 0.6);
@@ -121,9 +141,9 @@ const RewardNameContainer = styled.div`
 `;
 
 const RewardName = styled.p`
-  color: black;
-  font-size: 1.5rem;
-  font-weight: bold;
+  color: #ff980088;
+  font-size: 1.8rem;
+  font-weight: 1000;
   letter-spacing: 5px;
 `;
 
@@ -157,12 +177,12 @@ const GachaResultModal = ({ rewardItem, onClose }) => {
               <p>?</p>
             </CardBack>
             <CardFront rarity={rarity}>
-              <Rank rarity={rarity}>{rarity.toUpperCase()}</Rank>
+              <Rank rarity={rarity}>LEGENDARY</Rank>
               <RewardImageContainer>
                 <RewardImage src={rewardItem.icon} alt={rewardItem.name} />
               </RewardImageContainer>
               <RewardNameContainer>
-                <RewardName>{rewardItem.name}</RewardName>
+                <RewardName>슬라임냥</RewardName>
               </RewardNameContainer>
             </CardFront>
           </CardInner>

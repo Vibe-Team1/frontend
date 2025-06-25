@@ -11,6 +11,10 @@ const GlobalStyles = createGlobalStyle`
     -ms-user-select: none;
   }
 
+  html, body, button, input, textarea, select, a {
+    cursor: url('/etcIcon/cursor-default.png'), auto !important;
+  }
+
   body {
     font-family: monospace;
     -webkit-font-smoothing: antialiased;
@@ -20,7 +24,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   button {
-    cursor: pointer;
+    cursor: url('/etcIcon/cursor-default.png'), auto;
     border: none;
     outline: none;
     user-drag: none;
