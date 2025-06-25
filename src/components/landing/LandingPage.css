@@ -15,28 +15,42 @@
 }
 
 .landing-title {
+  position: fixed;
   font-family: "Noto Sans KR", "Nanum Gothic", sans-serif;
   font-size: 10rem; /* 기존 3rem에서 1.5배 증가 */
   color: #5cd379;
   letter-spacing: 0.1em; /* 글자 간격 추가 */
-  margin-bottom: 256px;
+  top: 20%;
   text-shadow: 8px 8px 12px #000;
 }
 
 .landing-gif {
-  margin-top: 500px;
+  position: fixed;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
   max-width: 100%;
   height: auto;
   object-fit: contain;
   animation: slideFromRight 3s ease-out forwards;
-  margin: 20px 0;
+  /* animation: slideFromRight 3s ease-out forwards; */
 }
 
 .landing-tip {
   color: #fff;
-  font-size: 1.2rem;
-  margin-top: 32px;
+  font-size: 1.8rem;
   text-shadow: 1px 1px 4px #000;
+  position: fixed;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  margin: 0;
+  padding: 0.5em 1.5em;
+  /* background: rgba(0,0,0,0.25); */
+  border-radius: 12px;
+  pointer-events: none;
 }
 
 .snowflake {
@@ -127,11 +141,11 @@
 
 @keyframes slideFromRight {
   0% {
-    transform: translateX(100vw);
+    transform: translate(calc(50vw + 50%), -50%);
     opacity: 0;
   }
   100% {
-    transform: translateX(0);
+    transform: translate(-50%, -50%);
     opacity: 1;
   }
 }

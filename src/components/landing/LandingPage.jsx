@@ -14,10 +14,8 @@ export default function LandingPage() {
       window.location.href = GOOGLE_OAUTH_URL;
     };
     window.addEventListener('keydown', handleRedirect);
-    window.addEventListener('click', handleRedirect);
     return () => {
       window.removeEventListener('keydown', handleRedirect);
-      window.removeEventListener('click', handleRedirect);
     };
   }, []);
 
